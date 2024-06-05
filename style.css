@@ -1,0 +1,274 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap'); */
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Quicksand', sans-serif;
+}
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background: black;
+}
+
+div#root {
+    padding: 50px;
+}
+
+div.container {
+    height: 100%;
+    width: 100%;
+    padding: 100px; 
+    padding-top: 100px;
+    color: white;
+}
+
+div.keyboard {
+    /* margin-left: 50px; */
+    height: fit-content;
+    padding: 30px;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    border: 1px solid white;
+}
+
+div.row {
+    height: 60px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+div#log-input {
+    width: 100%;
+    max-height: 60px;
+    background-color: whitesmoke;
+    border: 3px solid black;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    overflow-y: scroll;
+}
+
+div#log-input.focus {
+    border: 3px solid cornflowerblue;
+}
+
+div#log-input span.log-key {
+    color: white;
+    height: 20px;
+    border-radius: 5px;
+    margin: 3px;
+    padding-top: 3px;
+    font-size: 12px;
+}
+
+div#log-input span.log-key.printable {
+    background: BLACK;
+}
+
+div#log-input span.log-key.non-printable {
+    background: tomato;
+    text-transform: uppercase;
+}
+
+div#log-input span.log-key.non-printable-shortcut {
+    background: darkorchid;
+    /* text-transform: uppercase; */
+}
+
+div#log-input span.log-key:after {
+    content: attr(data-log-text);
+    padding: 8px;
+    margin-top: 8px;
+    text-align: center;
+}
+            
+div.row span.key {
+    padding: 12px;
+    margin: 4px;
+    border: 1px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(to right top, 
+        #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
+    border-width: 2px;
+    text-align: center;
+    border-radius: 4px;
+    text-transform: lowercase;
+}
+
+div.row span.key-a-left {
+    text-align: left;
+}
+div.row span.key-a-right {
+    text-align: right;
+}
+
+div.row span.key {
+    width: 60px;
+    height: 60px;
+}
+
+div.row span.key-space {
+    width: 360px;
+}
+
+div.row span.key-s-6 {
+    width: 150px;
+}
+
+div.row span.key-s-5 {
+    width: 128px;
+}
+
+div.row span.key-s-4 {
+    width: 106px;
+}
+
+div.row span.key-s-3 {
+    width: 100px;
+}
+
+div.row span.key-s-2 {
+    width: 88px;
+}
+
+div.row:nth-child(3) span.key:not(span.key.fa) {
+    height: 30px;
+    font-size: 10px;
+    padding-top: 6px;
+}
+
+div.row span.key-text {
+    font-size: 12px;
+    padding-top: 18px;
+}
+
+div.row span.key-icon {
+    padding-top: 18px;
+}
+
+div.row span.key:after {
+    content: attr(data-key);
+}
+
+div.row span.key-shift {
+    text-transform: capitalize;
+}
+
+div.row span#key-19 {
+    text-transform: lowercase;
+}
+
+div.row span.key-shift:after {
+    content: attr(data-shift);
+}
+
+div.row span.key.key-icon:after, div.row span.key-space:after {
+    content: '';
+}
+
+div.row span.key.key-icon.with-text:after {
+    content: '\20\20'attr(data-key);
+    font-size: 12px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+div.row span.key-icon.icon-tab:before {
+    content: '\21C4';
+}
+
+div.row span.key-icon.icon-enter:before {
+    content: '\21B5';
+}
+
+div.row span.key#key-mouse {
+    width: 41px;
+    height: 41px;
+    background-image: linear-gradient(to right top, 
+        #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
+    border: none;
+    border-radius: 50%;
+    align-self: flex-end;
+    position: absolute;
+    left: 605px;
+    margin-bottom: -25px;
+    opacity: 0.92;
+}
+
+div.row span.key#key-mouse:before {
+    position: relative;
+    justify-items: center;
+    font-size: 20px;
+    bottom: 8px;
+    left: 0px;
+}
+
+div.row span.key.key-clicked, div.row span.key.hkey-clicked {
+    background-color: cornsilk;
+    color: cornflowerblue;
+    transform: scale(0.9);
+}
+
+div.row.options {
+    flex-direction: column;
+    height: fit-content;
+}
+
+div.row.options div.keyboard-option {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid wheat;
+    border-radius: 5px;
+    padding: 0 10px;
+    margin: 10px 0;
+}
+
+div.row.options div.keyboard-option label {
+    font-size: 20px;
+    font-weight: 400;
+    color: whitesmoke;
+    text-transform: capitalize;
+}
+div.switch {
+    height: 25px;
+    width: 50px;
+    border-radius: 15px;
+    margin-bottom: 5px;
+    background-image: linear-gradient(to right top, 
+        #b2becf, #8599a1, #637474, #47504b, #2c2e29);
+    border: none;
+}
+div.switch.on {
+    background-image: linear-gradient(to right top, 
+        #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
+}
+div.switch input {
+    position: absolute;
+    top: -9999px;
+}
+div.switch span.slider {
+    height: 20px;
+    width: 20px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    margin: 3px 2px;
+    position: relative;
+}
+
+div.switch.on span.slider {
+    left: 26px;
+    margin: 0px 2px;
+    transition: 0.4s;
+}

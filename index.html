@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Remote Keyboard</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=0.7, user-scalable=0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+            integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div id="root">
+            <div class="container">
+                <div class="keyboard">
+                    <div class="row options">
+                        <div class="keyboard-option">
+                            <label for="enable-audio">Enable Key Audio effect</label>
+                            <div class="switch on">
+                                <input type="checkbox" id="enable-audio" checked>
+                                <span class="slider fa fa-circle" aria-hidden="true"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- <input type="text" name="log-input" id="log-input" disabled> -->
+                        <div id="log-input"></div>
+                    </div>
+                    <div class="row">
+                        <span class="key key-text" data-key="Esc" id="key-27"></span>
+                        <span class="key key-fn" data-key="F1" id="key-112"></span>
+                        <span class="key key-fn" data-key="F2" id="key-113"></span>
+                        <span class="key key-fn" data-key="F3" id="key-114"></span>
+                        <span class="key key-fn" data-key="F4" id="key-115"></span>
+                        <span class="key key-fn" data-key="F5" id="key-116"></span>
+                        <span class="key key-fn" data-key="F6" id="key-117"></span>
+                        <span class="key key-fn" data-key="F7" id="key-118"></span>
+                        <span class="key key-fn" data-key="F8" id="key-119"></span>
+                        <span class="key key-fn" data-key="F9" id="key-120"></span>
+                        <span class="key key-fn" data-key="F10" id="key-121"></span>
+                        <span class="key key-fn" data-key="F11" id="key-122"></span>
+                        <span class="key key-fn" data-key="F12" id="key-123"></span>
+                        <span class="key key-icon fa fa-home with-text" data-key="Home" id="key-36"></span>
+                        <span class="key key-icon fa fa-hourglass-end with-text" data-key="End" id="key-35"></span>
+                        <span class="key key-icon fa fa-plus-circle with-text" data-key="Insert" id="key-45"></span>
+                    </div>
+                    <div class="row">
+                        <span class="key key-symbol shift" data-shift="~" data-key="`" id="key-192"></span>
+                        <span class="key key-number shift" data-shift="!" data-key="1" id="key-49"></span>
+                        <span class="key key-number shift" data-shift="@" data-key="2" id="key-50"></span>
+                        <span class="key key-number shift" data-shift="#" data-key="3" id="key-51"></span>
+                        <span class="key key-number shift" data-shift="$" data-key="4" id="key-52"></span>
+                        <span class="key key-number shift" data-shift="%" data-key="5" id="key-53"></span>
+                        <span class="key key-number shift" data-shift="^" data-key="6" id="key-54"></span>
+                        <span class="key key-number shift" data-shift="&" data-key="7" id="key-55"></span>
+                        <span class="key key-number shift" data-shift="*" data-key="8" id="key-56"></span>
+                        <span class="key key-number shift" data-shift="(" data-key="9" id="key-57"></span>
+                        <span class="key key-number shift" data-shift=")" data-key="0" id="key-48"></span>
+                        <span class="key key-symbol shift" data-shift="_" data-key="-" id="key-189"></span>
+                        <span class="key key-symbol shift" data-shift="+" data-key="=" id="key-187"></span>
+                        <span class="key key-icon key-s-5 key-a-right fa fa-long-arrow-left with-text" data-key="Backspace" id="key-8"></span>
+                        <span class="key key-icon fa fa-trash with-text" data-key="Delete" id="key-46"></span>
+                    </div>
+                    <div class="row">
+                        <span class="key key-icon key-s-3 key-a-left icon-tab with-text" data-key="Tab" id="key-9"></span>
+                        <span class="key key-letter shift" data-shift="Q" data-key="q" id="key-81"></span>
+                        <span class="key key-letter shift" data-shift="W" data-key="w" id="key-87"></span>
+                        <span class="key key-letter shift" data-shift="E" data-key="e" id="key-69"></span>
+                        <span class="key key-letter shift" data-shift="R" data-key="r" id="key-82"></span>
+                        <span class="key key-letter shift" data-shift="T" data-key="t" id="key-84"></span>
+                        <span class="key key-letter shift" data-shift="Y" data-key="y" id="key-89"></span>
+                        <span class="key key-letter shift" data-shift="U" data-key="u" id="key-85"></span>
+                        <span class="key key-letter shift" data-shift="I" data-key="i" id="key-73"></span>
+                        <span class="key key-letter shift" data-shift="O" data-key="o" id="key-79"></span>
+                        <span class="key key-letter shift" data-shift="P" data-key="p" id="key-80"></span>
+                        <span class="key key-symbol shift" data-shift="{" data-key="[" id="key-219"></span>
+                        <span class="key key-symbol shift" data-shift="}" data-key="]" id="key-221"></span>
+                        <span class="key key-symbol shift key-s-2" data-shift="|" data-key="\" id="key-220"></span>
+                        <span class="key key-icon fa fa-caret-square-o-up with-text" data-key="PgUp" id="key-33"></span>
+                    </div>
+                    <div class="row">
+                        <!-- <div class="mouse"></div> -->
+                        <span class="key key-icon key-s-5 key-a-left fa fa-terminal with-text" data-key="Terminal"></span>
+                        <span class="key key-letter shift" data-shift="A" data-key="a" id="key-65"></span>
+                        <span class="key key-letter shift" data-shift="S" data-key="s" id="key-83"></span>
+                        <span class="key key-letter shift" data-shift="D" data-key="d" id="key-68"></span>
+                        <span class="key key-letter shift" data-shift="F" data-key="f" id="key-70"></span>
+                        <span class="key key-letter shift" data-shift="G" data-key="g" id="key-71"></span>
+                        <span class="key key-letter shift" data-shift="H" data-key="h" id="key-72"></span>
+                        <span class="key key-icon fa fa-arrows-alt" id="key-mouse"></span>
+                        <span class="key key-letter shift" data-shift="J" data-key="j" id="key-74"></span>
+                        <span class="key key-letter shift" data-shift="K" data-key="k" id="key-75"></span>
+                        <span class="key key-letter shift" data-shift="L" data-key="l" id="key-76"></span>
+                        <span class="key key-symbol shift" data-shift=":" data-key=";" id="key-186"></span>
+                        <span class="key key-symbol shift" data-shift='"' data-key="'" id="key-222"></span>
+                        <span class="key key-icon key-s-5 key-a-right icon-enter with-text" data-key="Enter" id="key-13"></span>
+                        <span class="key key-icon fa fa-caret-square-o-down with-text" data-key="PgDn" id="key-34"></span>
+                    </div>
+                    <div class="row">
+                        <span class="key key-icon key-s-6 key-a-left fa fa-long-arrow-up with-text" data-key="Shift" id="key-16"></span>
+                        <span class="key key-letter shift" data-shift="Z" data-key="z" id="key-90"></span>
+                        <span class="key key-letter shift" data-shift="X" data-key="x" id="key-88"></span>
+                        <span class="key key-letter shift" data-shift="C" data-key="c" id="key-67"></span>
+                        <span class="key key-letter shift" data-shift="V" data-key="v" id="key-86"></span>
+                        <span class="key key-letter shift" data-shift="B" data-key="b" id="key-66"></span>
+                        <span class="key key-letter shift" data-shift="N" data-key="n" id="key-78"></span>
+                        <span class="key key-letter shift" data-shift="M" data-key="m" id="key-77"></span>
+                        <span class="key key-letter shift" data-shift="<" data-key="," id="key-188"></span>
+                        <span class="key key-letter shift" data-shift=">" data-key="." id="key-190"></span>
+                        <span class="key key-symbol shift" data-shift="?" data-key="/" id="key-191"></span>
+                        <span class="key key-icon key-s-4 key-a-right fa fa-file-text" data-key="Notepad" id="key-notepad"></span>
+                        <span class="key key-icon fa fa-caret-up" data-key="UpArrow" id="key-38"></span>
+                        <!-- <span class="key key-icon fa fa-pause-circle with-text" data-key="Pause" id="key-19"></span> -->
+                        <span class="key key-text shift" data-key="Pause" data-shift="Break" id="key-19"></span>
+                        <!-- <span class="key key-icon fa fa-times-circle with-text" data-key="Break" id="key-19-b"></span> -->
+                    </div>
+                    <div class="row">
+                        <span class="key key-text" data-key="Ctrl" id="key-17"></span>
+                        <span class="key key-icon fa fa-windows" data-key="Start" id="key-91"></span>
+                        <span class="key key-text" data-key="Alt" id="key-18"></span>
+                        <span class="key key-space" data-key="Space" id="key-32"></span>
+                        <span class="key key-icon fa fa-list-alt" data-key="Context Menu" id="key-93"></span>
+                        <span class="key key-icon fa fa-calculator" data-key="Calculator" id="key-calc"></span>
+                        <span class="key key-text key-s-3" data-key="Prt Sc" id="key-prt-sc"></span>
+                        <span class="key key-text" data-key="Scr Lk" id="key-145"></span>
+                        <span class="key key-icon fa fa-caret-left" data-key="LeftArrow" id="key-37"></span>
+                        <span class="key key-icon fa fa-caret-down" data-key="DownArrow" id="key-40"></span>
+                        <span class="key key-icon fa fa-caret-right" data-key="RightArrow" id="key-39"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+        </script>
+        <script src="index.js"></script>
+    </body>
+</html>
