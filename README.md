@@ -2,11 +2,11 @@
 
 An old project I worked on for having a good understanding on JQuery and of course for fun 😁.
 
-![This code will 100% help you](image.png)
+![This code will 100% help you](readme_images/image.png)
 
 ## How does it look like?
 
-![Screenshot](screenshot.jpg)
+![Screenshot](readme_images/screenshot.jpg)
 
 ## How do I run?
 
