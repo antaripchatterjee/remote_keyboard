@@ -15,13 +15,13 @@
             <div class="container">
                 <div class="keyboard">
                     <div class="row options">
-                        <div class="keyboard-option">
+                        <!-- <div class="keyboard-option">
                             <label for="enable-audio">Enable Key Audio effect</label>
                             <div class="switch on">
                                 <input type="checkbox" id="enable-audio" checked>
                                 <span class="slider fa fa-circle" aria-hidden="true"></span>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="row">
                         <!-- <input type="text" name="log-input" id="log-input" disabled> -->
@@ -88,7 +88,7 @@
                         <span class="key key-letter shift" data-shift="F" data-key="f" id="key-70"></span>
                         <span class="key key-letter shift" data-shift="G" data-key="g" id="key-71"></span>
                         <span class="key key-letter shift" data-shift="H" data-key="h" id="key-72"></span>
-                        <span class="key key-icon fa fa-arrows-alt" id="key-mouse"></span>
+                        <!-- <span class="key key-icon fa fa-arrows-alt" id="key-mouse"></span> -->
                         <span class="key key-letter shift" data-shift="J" data-key="j" id="key-74"></span>
                         <span class="key key-letter shift" data-shift="K" data-key="k" id="key-75"></span>
                         <span class="key key-letter shift" data-shift="L" data-key="l" id="key-76"></span>
@@ -128,7 +128,16 @@
                         <span class="key key-icon fa fa-caret-down" data-key="DownArrow" id="key-40"></span>
                         <span class="key key-icon fa fa-caret-right" data-key="RightArrow" id="key-39"></span>
                     </div>
+                    <div class="row options">
+                        <div class="mouse-pad">
+                            <div class="mouse-keys">
+                                <input type="button" class="key-mouse" id="left-click">
+                                <input type="button" class="key-mouse" id="right-click">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"

@@ -2,14 +2,14 @@ $("#root").ready(() => {
     const rowWidth = $("div#log-input").parent().css("width");
     let helperKeys = [];
 
-    $("div#log-input").parent().css("width", rowWidth);
-    const keypressAudioData =
-        "SUQzBAAAAAAASFRQRTEAAAAcAAADU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMAVFNTRQAAAA4AAANMYXZmNTkuMi4xMDAAAAAAAAAAAAAAAP/7lAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEluZm8AAAAPAAAABAAAB4AAZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmczMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz/////////////////////////////////AAAAAExhdmM1OS4xLgAAAAAAAAAAAAAAACQEgAAAAAAAAAeALJcLggAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7lGQAAAAAAGkFAAAIAAANIKAAAReuBOJ42wAB768dqw9AAAAAAACAwIPAxQB/8LQMP44guHWDAIAgBl3TSAwsAqAxjA7AxRhQ5oWBqgZIBZAZRAkAY2yC/EAw2MZgi5fAw0gMA24lfAyBDsAwjhnAwzBD/sy7gYpwlgYRgdAYpArARBSAoDcDBGAH/t4ZYD4wBgeDJiCAAQGBPP/7cQeAwAcBwAgJAAAKA4Os2If//+0kiCCYDfE6GZGDgCxQj///Zv8+WR9ClAGACD7Pl8oE4LkJ0cf//////////4uM+gAAAQAAAAQIAAIAB4aBx54keaT6iJhgTszhhQKiACnXQQWBuDgG2HAOFfTe7gaQcBng4G/UhfgDwof2+AIEFJgsrAkEBu8NV/7v4uNIOnH2I/Ebl3//xxiAZ0g4YzIAeGQ//f+OsiYX3JQqH0TcZtL////NGM3ZN1Im5XQVlsltdiiDAYEIqMSCQbNJnB/VatiagxiHLUPpbDgelxUzC//7lGQRAAORKNPuNeAESibLDcEgAIyFc139goAZJ5iqv54gAhkFAzrlFjTbJ0NJePWqyH52imCE5PhvuR5yH1IsK6KcJ0KxCQBYLxPx8R2WD/vox3H/7/q+fvwIIDuJghWHg++ccKnA0d+g/55X/f8oidH0Db/j//RloomEWTaCwAaxDTuRw2DHCB6gMiCLA/i7wYGO6dBoeMrzun13D0KQN3eD/yP/v//Su/3si++J7m7hLiukxcB4sO/Up3qiImamFMgQZJdyAUBX8Oaj81MRheLdnWhTuUVhtUGhhjHqJFGPq8rAM7ixnKW6GfQXEbxY6TOPdUdnIp8zLN89nKYt1LqzZW/6uiO8/V3ZV//KqSrRG/fZVV3O7LR2UhlrFtwEzw8PEwZkAAnAKMVdmTD8NsXOKsjiSglSMcW2AUxSGksUrHxolrM1boexlIUZHy6aPoif+/u9ZishyiBOBwmZOFjSn////3e6f0oVerrNyFQAAJJdwHu/+QXmOxVMFv/7lGQJgAMsJdF9MYAARCK6v6YIAIwIu1e49YARK5IpNwZgAImo1xWqh0gdoj2tUqWFaVyHEq5w/PUQqgBoTcbA8m4vQnz7tj6buL4Tr/pal29/phqYHtESwVGux71uc4WNM6wVxeyTX2JyHIOOPsLEzS0raLGXd3aIZTAkFuW4JPrPu17ZLzbmkWsVhIQTM7/lYqHdDyMCARGiZhUEzArmYBK3fdGuOAIOyHPIcLH29/06fsE21z+WI23bDbbfNQhIop2WSS0CPtEMinDq3/puVtixn1aDyOgD5YTDBwD173nTcENU1Qvg0H0zQMVSs3pyh+ycdQk9fX7VOPPMv9rkro5zMfU3dKCMDtuSrBdDvRHpseUE45TP/922w222ydAIBKlut0uAAm8HOfnM5eaS7s1gWxDnkgU06EZxF/ZOT9JJb9tyJ3yd7fZ/+AE1TCDUW3iMYKFhUCTKhr5WLCW3t7DAK7UBQYAEIQhCEIQghCEIV4s+hPn0a0J6rTlLaf/7lEQND/KuIMbHBeAAXKQoyOE8AAAAAaQAAAAgAAA0gAAABAUnJ0uMpfhCgcwhxCkKjf/wnyuVz7fgq1DUNQ1Wq169fPgaBoGj0FQVBXLA0DIKgqCoKg0DQd+CvyoKuAAIAApjGM//MGAq1rWtde3zBTpomidLKwkqBTALQEIMIlyHK5XK1DVa91CYlcnk6W0go9I9I9JOTRQ1XPrYKrBUFTvklgqCoKgtLA0DQa/WCrwVBV2DQNA1lgaDikxBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqg==";
-    const btnAudios = new Array(5).fill(
-        new Audio(`data:audio/mp3;base64,${keypressAudioData}`),
-        0,
-        5
-    );
+    // $("div#log-input").parent().css("width", rowWidth);
+    // const keypressAudioData =
+    //     "SUQzBAAAAAAASFRQRTEAAAAcAAADU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMAVFNTRQAAAA4AAANMYXZmNTkuMi4xMDAAAAAAAAAAAAAAAP/7lAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEluZm8AAAAPAAAABAAAB4AAZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmczMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMz/////////////////////////////////AAAAAExhdmM1OS4xLgAAAAAAAAAAAAAAACQEgAAAAAAAAAeALJcLggAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7lGQAAAAAAGkFAAAIAAANIKAAAReuBOJ42wAB768dqw9AAAAAAACAwIPAxQB/8LQMP44guHWDAIAgBl3TSAwsAqAxjA7AxRhQ5oWBqgZIBZAZRAkAY2yC/EAw2MZgi5fAw0gMA24lfAyBDsAwjhnAwzBD/sy7gYpwlgYRgdAYpArARBSAoDcDBGAH/t4ZYD4wBgeDJiCAAQGBPP/7cQeAwAcBwAgJAAAKA4Os2If//+0kiCCYDfE6GZGDgCxQj///Zv8+WR9ClAGACD7Pl8oE4LkJ0cf//////////4uM+gAAAQAAAAQIAAIAB4aBx54keaT6iJhgTszhhQKiACnXQQWBuDgG2HAOFfTe7gaQcBng4G/UhfgDwof2+AIEFJgsrAkEBu8NV/7v4uNIOnH2I/Ebl3//xxiAZ0g4YzIAeGQ//f+OsiYX3JQqH0TcZtL////NGM3ZN1Im5XQVlsltdiiDAYEIqMSCQbNJnB/VatiagxiHLUPpbDgelxUzC//7lGQRAAORKNPuNeAESibLDcEgAIyFc139goAZJ5iqv54gAhkFAzrlFjTbJ0NJePWqyH52imCE5PhvuR5yH1IsK6KcJ0KxCQBYLxPx8R2WD/vox3H/7/q+fvwIIDuJghWHg++ccKnA0d+g/55X/f8oidH0Db/j//RloomEWTaCwAaxDTuRw2DHCB6gMiCLA/i7wYGO6dBoeMrzun13D0KQN3eD/yP/v//Su/3si++J7m7hLiukxcB4sO/Up3qiImamFMgQZJdyAUBX8Oaj81MRheLdnWhTuUVhtUGhhjHqJFGPq8rAM7ixnKW6GfQXEbxY6TOPdUdnIp8zLN89nKYt1LqzZW/6uiO8/V3ZV//KqSrRG/fZVV3O7LR2UhlrFtwEzw8PEwZkAAnAKMVdmTD8NsXOKsjiSglSMcW2AUxSGksUrHxolrM1boexlIUZHy6aPoif+/u9ZishyiBOBwmZOFjSn////3e6f0oVerrNyFQAAJJdwHu/+QXmOxVMFv/7lGQJgAMsJdF9MYAARCK6v6YIAIwIu1e49YARK5IpNwZgAImo1xWqh0gdoj2tUqWFaVyHEq5w/PUQqgBoTcbA8m4vQnz7tj6buL4Tr/pal29/phqYHtESwVGux71uc4WNM6wVxeyTX2JyHIOOPsLEzS0raLGXd3aIZTAkFuW4JPrPu17ZLzbmkWsVhIQTM7/lYqHdDyMCARGiZhUEzArmYBK3fdGuOAIOyHPIcLH29/06fsE21z+WI23bDbbfNQhIop2WSS0CPtEMinDq3/puVtixn1aDyOgD5YTDBwD173nTcENU1Qvg0H0zQMVSs3pyh+ycdQk9fX7VOPPMv9rkro5zMfU3dKCMDtuSrBdDvRHpseUE45TP/922w222ydAIBKlut0uAAm8HOfnM5eaS7s1gWxDnkgU06EZxF/ZOT9JJb9tyJ3yd7fZ/+AE1TCDUW3iMYKFhUCTKhr5WLCW3t7DAK7UBQYAEIQhCEIQghCEIV4s+hPn0a0J6rTlLaf/7lEQND/KuIMbHBeAAXKQoyOE8AAAAAaQAAAAgAAA0gAAABAUnJ0uMpfhCgcwhxCkKjf/wnyuVz7fgq1DUNQ1Wq169fPgaBoGj0FQVBXLA0DIKgqCoKg0DQd+CvyoKuAAIAApjGM//MGAq1rWtde3zBTpomidLKwkqBTALQEIMIlyHK5XK1DVa91CYlcnk6W0go9I9I9JOTRQ1XPrYKrBUFTvklgqCoKgtLA0DQa/WCrwVBV2DQNA1lgaDikxBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqg==";
+    // const btnAudios = new Array(5).fill(
+    //     new Audio(`data:audio/mp3;base64,${keypressAudioData}`),
+    //     0,
+    //     5
+    // );
 
     let audioIndex = 0;
 
@@ -85,14 +85,14 @@ $("#root").ready(() => {
         const helperKeysCopy = helperKeys;
         const { enableEffect, primaryEvent } = params;
         let doLog = true;
-        try {
-            if (enableEffect && $("input#enable-audio").attr("checked")) {
-                audioIndex %= btnAudios.length;
-                const btnAudio = btnAudios[audioIndex++];
-                btnAudio.play();
-            }
-        } catch (e) {
-        } finally {
+        // try {
+            // if (enableEffect && $("input#enable-audio").attr("checked")) {
+            //     audioIndex %= btnAudios.length;
+            //     const btnAudio = btnAudios[audioIndex++];
+            //     btnAudio.play();
+            // }
+        // } catch (e) {
+        // } finally {
             if (!$("div#log-input").hasClass("focus")) {
                 $("div#log-input").addClass("focus");
             }
@@ -166,7 +166,7 @@ $("#root").ready(() => {
                         .scrollTop($("div#log-input").prop("scrollHeight"));
                 }
             }
-        }
+        // }
         e.stopPropagation();
     });
 

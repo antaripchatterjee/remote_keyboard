@@ -98,6 +98,7 @@ div#log-input span.log-key:after {
 div.row span.key {
     padding: 12px;
     margin: 4px;
+    background-color: #2c2e29;
     border: 1px solid;
     border-image-slice: 1;
     border-image-source: linear-gradient(to right top, 
@@ -271,4 +272,36 @@ div.switch.on span.slider {
     left: 26px;
     margin: 0px 2px;
     transition: 0.4s;
+}
+
+.mouse-pad {
+    width: 500px;
+    height: 210px;
+    background-color: #10182b;
+    align-self: center;
+    margin: 20px 10px 0px 10px;
+    border: 2px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(to right top, 
+        #b2becf, #8599a1, #637474, #47504b, #2c2e29);
+    display: flex;
+    align-items: flex-end;
+    justify-content: stretch;
+
+}
+.mouse-pad .mouse-keys {
+    width: 100%;
+    padding: 5px;
+    display: flex;
+} 
+
+.mouse-pad .key-mouse {
+   width: 100%;
+   height: 32px;
+   margin: 0 2px;
+   background-color: #2c2e29;
+   border: 1px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(to right top, 
+    #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
 }
