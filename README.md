@@ -31,4 +31,4 @@ However you can also run the `index.html` as a standalone file in your browser.
 ## CHANGE LOG
 
 1. Decided to improve it further, so implemented mouse/touchpad feature.
-2. Removed audio effect to which was causing intermetent latencies.
+2. Removed audio effect to improve latency problem between key strokes.
