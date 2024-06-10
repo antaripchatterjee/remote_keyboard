@@ -32,3 +32,4 @@ However you can also run the `index.html` as a standalone file in your browser.
 
 1. Decided to improve it further, so implemented mouse/touchpad feature.
 2. Removed audio effect to improve latency problem between key strokes.
+3. Added custom event listener `interface-input` to handle events received from keyboard, mouse and screen(for touch devices).
