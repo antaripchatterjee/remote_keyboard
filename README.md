@@ -27,3 +27,8 @@ python3 -m webbrowser -t "http://localhost:8080/index.html" # for windows user, 
 ```
 
 However you can also run the `index.html` as a standalone file in your browser.
+
+## CHANGE LOG
+
+1. Decided to improve it further, so implemented mouse/touchpad feature.
+2. Removed audio effect to which was causing intermetent latencies.

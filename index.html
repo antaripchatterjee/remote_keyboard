@@ -9,19 +9,13 @@
             integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="static/style.css" />
+        <link rel="icon" href="static/favicon.png" type="image/png">
     </head>
     <body>
         <div id="root">
             <div class="container">
                 <div class="keyboard">
                     <div class="row options">
-                        <!-- <div class="keyboard-option">
-                            <label for="enable-audio">Enable Key Audio effect</label>
-                            <div class="switch on">
-                                <input type="checkbox" id="enable-audio" checked>
-                                <span class="slider fa fa-circle" aria-hidden="true"></span>
-                            </div>
-                        </div> -->
                     </div>
                     <div class="row">
                         <!-- <input type="text" name="log-input" id="log-input" disabled> -->
@@ -128,16 +122,21 @@
                         <span class="key key-icon fa fa-caret-down" data-key="DownArrow" id="key-40"></span>
                         <span class="key key-icon fa fa-caret-right" data-key="RightArrow" id="key-39"></span>
                     </div>
+                    
+                </div>
+                <div class="keyboard mouse-in-keyboard">
                     <div class="row options">
-                        <div class="mouse-pad">
-                            <div class="mouse-keys">
-                                <input type="button" class="key-mouse" id="left-click">
-                                <input type="button" class="key-mouse" id="right-click">
+                        <div class="mouse">
+                            <div class="mouse-touchpad" id="touchpad">
+                                <span class="fa fa-xl mouse-pointer" id="pointer" draggable="true" style="top: 5px; left: 5px;"></span>
+                            </div>
+                            <div class="mouse-button">
+                                <input type="button" class="button" id="btn-left">
+                                <input type="button" class="button" id="btn-right">
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"
