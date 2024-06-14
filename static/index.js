@@ -11,8 +11,7 @@ $("#root").ready(() => {
     $("div#log-input").parent().css("width", rowWidth);
     
     document.addEventListener('interface-input', async (e) => {
-        console.log(e)
-
+        console.log(e.detail.eventType)
     })
 
     $("span.key").click((e, data = {}) => {
@@ -161,8 +160,9 @@ $("#root").ready(() => {
         e.stopPropagation();
     }).trigger('click');
     
-    let lastX = null, lastY = null, lastMouseEventType = null;
+    let lastPageX = null, lastPageY = null, lastMouseEventType = 'touchend';
     let startedTouch = null, secondClickTs = NaN, clickCount = 0;
+    let mouseMoveTimeout = null;
     if(window.matchMedia("(any-pointer: coarse)").matches) {
         // touch device only
         $('#touchpad').append(`
@@ -171,12 +171,12 @@ $("#root").ready(() => {
         `)
     }
 
-    function fireWhenMouseLeaves() {
+    function fireQueuedMouseEvents(eventType) {
         if(mouseEventQueue[0] !== null) {
             const interfaceMouse = new CustomEvent('interface-input', {
                 detail: {
                     interfaceType: 'mouse',
-                    eventType: lastMouseEventType,
+                    eventType,
                     data: {
                         queue: mouseEventQueue.slice(0, queueInsertPos),
                         size: queueInsertPos
@@ -187,13 +187,35 @@ $("#root").ready(() => {
             document.dispatchEvent(interfaceMouse);
             queueInsertPos = 0;
             mouseEventQueue.fill(null);
-            lastMouseEventType = null;
+            return true;
         }
+        return false;
     }
+
+    $('#btn-right').on('click', e => {
+        e.preventDefault();
+        $('#btn-right').addClass('hkey-clicked');
+        setTimeout(() => $('#btn-right').removeClass('hkey-clicked'), 20)
+        mouseEventQueue[queueInsertPos++] = {
+            source: 'right-button',
+            ctrlKey: helperKeys.includes(17),
+            shiftKey: helperKeys.includes(16),
+            altKey: helperKeys.includes(18),
+            metaKey: helperKeys.includes(91),
+            clickCount: 1
+        }
+        fireQueuedMouseEvents('rclick');
+    });
 
     $('#btn-left').on('click dblclick', (e, c) => {
         e.preventDefault();
-        const data = c ?? { clickCount: e.type === 'click' ? 1 : 2}
+        e.stopImmediatePropagation();
+        if(c === undefined) {
+            $('#btn-left').addClass('hkey-clicked');
+            setTimeout(() => $('#btn-left').removeClass('hkey-clicked'), 20)
+        }
+        const data = c ?? { clickCount: e.type === 'click' ? 1 : 2};
+        const eventType = e.type === 'click' ? 'lclick' : 'dblclick';
         mouseEventQueue[queueInsertPos++] = {
             source: 'left-button',
             ctrlKey: helperKeys.includes(17),
@@ -202,20 +224,7 @@ $("#root").ready(() => {
             metaKey: helperKeys.includes(91),
             ...data
         }
-        const interfaceMouse = new CustomEvent('interface-input', {
-            detail: {
-                interfaceType: 'mouse',
-                eventType: e.type,
-                data: {
-                    queue: mouseEventQueue.slice(0, queueInsertPos),
-                    size: queueInsertPos
-                },
-                identifier: (mouseEventId = (mouseEventId + 1) % MAX_SERVER_SIDE_QUEUE_SIZE)
-            }
-        });
-        queueInsertPos = 0;
-        mouseEventQueue.fill(null);
-        document.dispatchEvent(interfaceMouse);
+        fireQueuedMouseEvents(eventType);
     });
 
     $('#touchpad').on('click', e => {
@@ -225,7 +234,8 @@ $("#root").ready(() => {
                 .attr('data-pointer', 'visible')
                 .on('keyup', e => {
                     if(e.keyCode === 27) {
-                        fireWhenMouseLeaves();
+                        fireQueuedMouseEvents(lastMouseEventType);
+                        lastMouseEventType = 'touchend';
                         $(e.currentTarget)
                             .attr('data-pointer', 'hidden')
                             .off('keyup');
@@ -234,7 +244,7 @@ $("#root").ready(() => {
         } else {
             if(Number.isNaN(secondClickTs) && clickCount === 0) {
                 setTimeout(({firstClickTs}) => {
-                    if((secondClickTs - firstClickTs > 200) || clickCount === 1) {
+                    if((secondClickTs - firstClickTs > 300) || clickCount === 1) {
                         $('#btn-left').trigger('click', { clickCount })
                     } else {
                         $('#btn-left').trigger('dblclick', { clickCount })
@@ -250,31 +260,20 @@ $("#root").ready(() => {
     }).on('mouseleave', e => {
         e.preventDefault();
         if($(e.currentTarget).attr('data-pointer') === 'visible') {
-            fireWhenMouseLeaves();
-            $(e.currentTarget)
-                .attr('data-pointer', 'hidden')
-                .off('keyup');
+            fireQueuedMouseEvents(lastMouseEventType);
+            lastMouseEventType = 'mouseleave';
+            $(e.currentTarget).attr('data-pointer', 'hidden').off('keyup');
         }
     }).on('mousemove', e => {
         e.preventDefault();
         if($(e.currentTarget).attr('data-pointer') === 'visible') {
+            if(mouseMoveTimeout !== null) {
+                clearTimeout(mouseMoveTimeout);
+            }
             const eventType = 'mousemove';
             const { movementX, movementY } = e.originalEvent;
             if(eventType !== (lastMouseEventType ?? eventType) || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
-                const interfaceMouse = new CustomEvent('interface-input', {
-                    detail: {
-                        interfaceType: 'mouse',
-                        eventType: lastMouseEventType,
-                        data: {
-                            queue: mouseEventQueue.slice(0, queueInsertPos),
-                            size: queueInsertPos
-                        },
-                        identifier: (mouseEventId = (mouseEventId + 1) % MAX_SERVER_SIDE_QUEUE_SIZE)
-                    }
-                });
-                queueInsertPos = 0;
-                mouseEventQueue.fill(null);
-                document.dispatchEvent(interfaceMouse);
+                fireQueuedMouseEvents(lastMouseEventType);
             }
             mouseEventQueue[queueInsertPos++] = {
                 source: 'touchpad',
@@ -287,40 +286,34 @@ $("#root").ready(() => {
                 altKey: helperKeys.includes(18),
                 metaKey: helperKeys.includes(91)
             };
+            mouseMoveTimeout = setTimeout(eventType => fireQueuedMouseEvents(eventType),
+                200, eventType);
             lastMouseEventType = eventType;
         }
     }).on('wheel', e => {
         e.preventDefault();
         if($(e.currentTarget).attr('data-pointer') === 'visible') {
+            const eventType = 'wheel';
             const { deltaX, deltaY, deltaZ, deltaMode } = e.originalEvent;
-            const interfaceMouse = new CustomEvent('interface-input', {
-                detail: {
-                    interfaceType: 'mouse',
-                    eventType: 'wheel',
-                    data: {
-                        queue: [
-                            {
-                                source: 'touchpad',
-                                deltaX,
-                                deltaY,
-                                deltaZ,
-                                deltaMode,
-                                ctrlKey: helperKeys.includes(17),
-                                shiftKey: helperKeys.includes(16),
-                                altKey: helperKeys.includes(18),
-                                metaKey: helperKeys.includes(91)
-                            }
-                        ],
-                        size: 1
-                    },
-                    identifier: (mouseEventId = (mouseEventId + 1) % MAX_SERVER_SIDE_QUEUE_SIZE)
-                }
-            });
-            document.dispatchEvent(interfaceMouse);
+            if(lastMouseEventType !== eventType || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
+                fireQueuedMouseEvents(lastMouseEventType);
+            }
+            mouseEventQueue[queueInsertPos++] = {
+                source: 'touchpad',
+                deltaX,
+                deltaY,
+                deltaZ,
+                deltaMode,
+                ctrlKey: helperKeys.includes(17),
+                shiftKey: helperKeys.includes(16),
+                altKey: helperKeys.includes(18),
+                metaKey: helperKeys.includes(91)
+            }
+            fireQueuedMouseEvents(eventType);
+            lastMouseEventType = eventType;
         }
     }).on('touchstart', e => {
         e.preventDefault();
-        console.log(e)
         const position = $(e.currentTarget).position();
         const fontSize = parseInt($('#pointer').css('font-size'), 10)
         const offset = {
@@ -344,8 +337,8 @@ $("#root").ready(() => {
                 .css('left', `${left}px`)
                 .css('opacity', '1')
                 .addClass('fa-mouse-pointer');
-            lastX = pageX;
-            lastY = pageY;
+            lastPageX = pageX;
+            lastPageY = pageY;
         } else {
             $(e.currentTarget)
                 .find('#pointer')
@@ -363,8 +356,8 @@ $("#root").ready(() => {
         }
         const { targetTouches } = e.originalEvent;
         const {pageX, pageY} = targetTouches[0];
-        const deltaX = pageX - lastX; lastX = pageX;
-        const deltaY = pageY - lastY; lastY = pageY;
+        const deltaX = pageX - lastPageX; lastPageX = pageX;
+        const deltaY = pageY - lastPageY; lastPageY = pageY;
         if(targetTouches.length === 1) {
             // move mouse pointer
             const top = Math.max(Math.min(pageY - position.top, offset.areaHeight), 5);
@@ -376,20 +369,7 @@ $("#root").ready(() => {
         }
         const eventType = targetTouches.length === 1 ? 'mousemove' : 'wheel';
         if(eventType !== (lastMouseEventType ?? eventType) || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
-            const interfaceMouse = new CustomEvent('interface-input', {
-                detail: {
-                    interfaceType: 'mouse',
-                    eventType: lastMouseEventType,
-                    data: {
-                        queue: mouseEventQueue.slice(0, queueInsertPos),
-                        size: queueInsertPos
-                    },
-                    identifier: (mouseEventId = (mouseEventId + 1) % MAX_SERVER_SIDE_QUEUE_SIZE)
-                }
-            });
-            queueInsertPos = 0;
-            mouseEventQueue.fill(null);
-            document.dispatchEvent(interfaceMouse);
+            fireQueuedMouseEvents(lastMouseEventType)
         }
         mouseEventQueue[queueInsertPos++] = {
             source: 'touchpad',
@@ -405,7 +385,6 @@ $("#root").ready(() => {
         lastMouseEventType = eventType;
     }).on('touchend touchcancel', e => {
         e.preventDefault();
-        console.log(e);
         const position = $(e.currentTarget).position();
         const { targetTouches, changedTouches } = e.originalEvent;
         const fontSize = parseInt($('#pointer').css('font-size'), 10)
@@ -443,34 +422,21 @@ $("#root").ready(() => {
                     clickCount = 0;
                 }
             }
-            if(mouseEventQueue[0] !== null && clickCount === 0) {
-                const interfaceMouse = new CustomEvent('interface-input', {
-                    detail: {
-                        interfaceType: 'mouse',
-                        eventType: lastMouseEventType,
-                        data: {
-                            queue: mouseEventQueue.slice(0, queueInsertPos),
-                            size: queueInsertPos
-                        },
-                        identifier: (mouseEventId = (mouseEventId + 1) % MAX_SERVER_SIDE_QUEUE_SIZE)
-                    }
-                });
-                document.dispatchEvent(interfaceMouse);
+            if(clickCount === 0) {
+                fireQueuedMouseEvents(lastMouseEventType);
+                lastMouseEventType = 'touchend';
             } else if(clickCount === 1) {
-                setTimeout(() =>{
-                    if(clickCount === 1) {
-                        $('#btn-left').trigger('click', {clickCount})
-                    } else {
-                        $('#btn-left').trigger('dblclick', {clickCount})
-                    }
+                queueInsertPos = 0;
+                mouseEventQueue.fill(null);
+                setTimeout(() => {
+                    const eventType = clickCount === 1 ? 'click' : 'dblclick';
+                    $('#btn-left').trigger(eventType, {clickCount});
+                    lastMouseEventType = eventType;
                     clickCount = 0;
                 }, 200);
             }
-            lastX = null;
-            lastY = null;
-            queueInsertPos = 0;
-            mouseEventQueue.fill(null);
-            lastMouseEventType = null;
+            lastPageX = null;
+            lastPageY = null;
         }
     })
 });

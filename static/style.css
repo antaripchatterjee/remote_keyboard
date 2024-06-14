@@ -218,7 +218,7 @@ div.row span.key#key-mouse:before {
     left: 0px;
 }
 
-div.row span.key.key-clicked, div.row span.key.hkey-clicked {
+div.row span.key.key-clicked, div.row .hkey-clicked {
     background-color: cornsilk;
     color: cornflowerblue;
     transform: scale(0.9);
