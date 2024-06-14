@@ -267,9 +267,7 @@ $("#root").ready(() => {
     }).on('mousemove', e => {
         e.preventDefault();
         if($(e.currentTarget).attr('data-pointer') === 'visible') {
-            if(mouseMoveTimeout !== null) {
-                clearTimeout(mouseMoveTimeout);
-            }
+            clearTimeout(mouseMoveTimeout);
             const eventType = 'mousemove';
             const { movementX, movementY } = e.originalEvent;
             if(eventType !== (lastMouseEventType ?? eventType) || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
@@ -286,8 +284,10 @@ $("#root").ready(() => {
                 altKey: helperKeys.includes(18),
                 metaKey: helperKeys.includes(91)
             };
-            mouseMoveTimeout = setTimeout(eventType => fireQueuedMouseEvents(eventType),
-                200, eventType);
+            mouseMoveTimeout = setTimeout(eventType => {
+                fireQueuedMouseEvents(eventType);
+                mouseMoveTimeout = null;
+            }, 200, eventType);
             lastMouseEventType = eventType;
         }
     }).on('wheel', e => {
