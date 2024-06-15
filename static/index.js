@@ -11,7 +11,7 @@ $("#root").ready(() => {
     $("div#log-input").parent().css("width", rowWidth);
     
     document.addEventListener('interface-input', async (e) => {
-        console.log(e.detail.eventType)
+        console.log(e.detail)
     })
 
     $("span.key").click((e, data = {}) => {
@@ -162,7 +162,7 @@ $("#root").ready(() => {
     
     let lastPageX = null, lastPageY = null, lastMouseEventType = 'touchend';
     let startedTouch = null, secondClickTs = NaN, clickCount = 0;
-    let mouseMoveTimeout = null;
+    let mouseMoveTimeout = null, mouseLeftClickTimeout = null;
     if(window.matchMedia("(any-pointer: coarse)").matches) {
         // touch device only
         $('#touchpad').append(`
@@ -209,22 +209,53 @@ $("#root").ready(() => {
 
     $('#btn-left').on('click dblclick', (e, c) => {
         e.preventDefault();
-        e.stopImmediatePropagation();
-        if(c === undefined) {
-            $('#btn-left').addClass('hkey-clicked');
-            setTimeout(() => $('#btn-left').removeClass('hkey-clicked'), 20)
-        }
-        const data = c ?? { clickCount: e.type === 'click' ? 1 : 2};
+        const data = c ?? {
+            clickCount: e.type === 'click' ? 1 : 2, 
+            source: 'left-button'
+        };
         const eventType = e.type === 'click' ? 'lclick' : 'dblclick';
-        mouseEventQueue[queueInsertPos++] = {
-            source: 'left-button',
-            ctrlKey: helperKeys.includes(17),
-            shiftKey: helperKeys.includes(16),
-            altKey: helperKeys.includes(18),
-            metaKey: helperKeys.includes(91),
-            ...data
+        if(data.source === 'left-button') {
+            $('#btn-left').addClass('hkey-clicked');
+            setTimeout(() => $('#btn-left').removeClass('hkey-clicked'), 30);
+            if(eventType === 'lclick') {
+                if(mouseLeftClickTimeout === null) {
+                    mouseLeftClickTimeout = setTimeout((eventType, data) => {
+                        mouseEventQueue[queueInsertPos++] = {
+                            ctrlKey: helperKeys.includes(17),
+                            shiftKey: helperKeys.includes(16),
+                            altKey: helperKeys.includes(18),
+                            metaKey: helperKeys.includes(91),
+                            ...data
+                        };
+                        fireQueuedMouseEvents(eventType);
+                        mouseLeftClickTimeout = null;
+                    }, 200, eventType, data);
+                }
+            } else {
+                if(mouseLeftClickTimeout) {
+                    clearTimeout(mouseLeftClickTimeout);
+                    mouseLeftClickTimeout = null;
+                }
+                mouseEventQueue[queueInsertPos++] = {
+                    ctrlKey: helperKeys.includes(17),
+                    shiftKey: helperKeys.includes(16),
+                    altKey: helperKeys.includes(18),
+                    metaKey: helperKeys.includes(91),
+                    ...data
+                };
+                fireQueuedMouseEvents(eventType);
+            }
+        } else {
+            mouseEventQueue[queueInsertPos++] = {
+                ctrlKey: helperKeys.includes(17),
+                shiftKey: helperKeys.includes(16),
+                altKey: helperKeys.includes(18),
+                metaKey: helperKeys.includes(91),
+                ...data
+            };
+            fireQueuedMouseEvents(eventType);
         }
-        fireQueuedMouseEvents(eventType);
+        lastMouseEventType = eventType;
     });
 
     $('#touchpad').on('click', e => {
@@ -245,9 +276,9 @@ $("#root").ready(() => {
             if(Number.isNaN(secondClickTs) && clickCount === 0) {
                 setTimeout(({firstClickTs}) => {
                     if((secondClickTs - firstClickTs > 300) || clickCount === 1) {
-                        $('#btn-left').trigger('click', { clickCount })
+                        $('#btn-left').trigger('click', { clickCount, source: 'touchpad' })
                     } else {
-                        $('#btn-left').trigger('dblclick', { clickCount })
+                        $('#btn-left').trigger('dblclick', { clickCount, source: 'touchpad'  })
                     }
                     clickCount = 0;
                     secondClickTs = NaN;
@@ -430,7 +461,7 @@ $("#root").ready(() => {
                 mouseEventQueue.fill(null);
                 setTimeout(() => {
                     const eventType = clickCount === 1 ? 'click' : 'dblclick';
-                    $('#btn-left').trigger(eventType, {clickCount});
+                    $('#btn-left').trigger(eventType, {clickCount, source: 'touchpad'});
                     lastMouseEventType = eventType;
                     clickCount = 0;
                 }, 200);
