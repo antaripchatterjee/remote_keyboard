@@ -267,17 +267,7 @@ $("#root").ready(() => {
     $('#touchpad').on('click', e => {
         e.preventDefault();
         if($(e.currentTarget).attr('data-pointer') === 'hidden') {
-            $(e.currentTarget)
-                .attr('data-pointer', 'visible')
-                .on('keyup', e => {
-                    if(e.keyCode === 27) {
-                        fireQueuedMouseEvents(lastMouseEventType);
-                        lastMouseEventType = 'touchend';
-                        $(e.currentTarget)
-                            .attr('data-pointer', 'hidden')
-                            .off('keyup');
-                    }
-                })
+            $(e.currentTarget).attr('data-pointer', 'visible')
         } else {
             if(Number.isNaN(secondClickTs) && clickCount === 0) {
                 setTimeout(({firstClickTs}) => {
@@ -294,7 +284,11 @@ $("#root").ready(() => {
             }
             clickCount++;
         }
-    }).on('mouseleave', e => {
+    }).on('contextmenu', e => {
+        e.preventDefault();
+        $(e.currentTarget).trigger('mouseleave');
+    })
+    .on('mouseleave', e => {
         e.preventDefault();
         if($(e.currentTarget).attr('data-pointer') === 'visible') {
             fireQueuedMouseEvents(lastMouseEventType);
