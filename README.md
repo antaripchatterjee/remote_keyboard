@@ -28,6 +28,17 @@ python3 -m webbrowser -t "http://localhost:8080/index.html" # for windows user, 
 
 However you can also run the `index.html` as a standalone file in your browser.
 
+## Supported events
+# Keyboard
+* Key press
+
+# Mouse
+* Mouse move
+* Mouse wheel
+* Right click
+* Left click
+* Double click
+
 ## CHANGE LOG
 
 1. Decided to improve it further, so implemented mouse/touchpad feature.
