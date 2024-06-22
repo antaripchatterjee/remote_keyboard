@@ -161,7 +161,7 @@ $("#root").ready(() => {
     }).trigger('click');
     
     let lastPageX = null, lastPageY = null, lastMouseEventType = 'touchend';
-    let startedTouch = null, secondClickTs = NaN, clickCount = 0;
+    let secondClickTs = NaN, clickCount = 0, startedTouches = [null, null], touchEndedId = -1;
     let mouseMoveTimeout = null, mouseLeftClickTimeout = null;
     if(window.matchMedia("(any-pointer: coarse)").matches) {
         // touch device only
@@ -192,19 +192,25 @@ $("#root").ready(() => {
         return false;
     }
 
-    $('#btn-right').on('click', e => {
+    $('#btn-right').on('click', (e, c)=> {
         e.preventDefault();
-        $('#btn-right').addClass('hkey-clicked');
-        setTimeout(() => $('#btn-right').removeClass('hkey-clicked'), 20)
+        const data = c ?? {
+            source: 'right-button'
+        };
+        if(data.source === 'right-button') {
+            $('#btn-right').addClass('hkey-clicked');
+            setTimeout(() => $('#btn-right').removeClass('hkey-clicked'), 20)
+        }
         mouseEventQueue[queueInsertPos++] = {
-            source: 'right-button',
             ctrlKey: helperKeys.includes(17),
             shiftKey: helperKeys.includes(16),
             altKey: helperKeys.includes(18),
             metaKey: helperKeys.includes(91),
-            clickCount: 1
+            clickCount: 1,
+            ...data
         }
         fireQueuedMouseEvents('rclick');
+        lastMouseEventType = 'rclick';
     });
 
     $('#btn-left').on('click dblclick', (e, c) => {
@@ -216,7 +222,7 @@ $("#root").ready(() => {
         const eventType = e.type === 'click' ? 'lclick' : 'dblclick';
         if(data.source === 'left-button') {
             $('#btn-left').addClass('hkey-clicked');
-            setTimeout(() => $('#btn-left').removeClass('hkey-clicked'), 30);
+            setTimeout(() => $('#btn-left').removeClass('hkey-clicked'), 20);
             if(eventType === 'lclick') {
                 if(mouseLeftClickTimeout === null) {
                     mouseLeftClickTimeout = setTimeout((eventType, data) => {
@@ -345,17 +351,20 @@ $("#root").ready(() => {
         }
     }).on('touchstart', e => {
         e.preventDefault();
+        if(startedTouches.findIndex(t => t === null) === -1) return false;
         const position = $(e.currentTarget).position();
         const fontSize = parseInt($('#pointer').css('font-size'), 10)
         const offset = {
             areaWidth: Math.floor(e.currentTarget.offsetWidth - fontSize),
             areaHeight: Math.floor(e.currentTarget.offsetHeight - fontSize)
         }
-        const { targetTouches } = e.originalEvent;
-        if(targetTouches.length == 1) {
+        const { targetTouches: _targetTouches } = e.originalEvent;
+        const targetTouches = [..._targetTouches].filter(touch => touch.identifier in [0, 1]);
+        
+        if(targetTouches.length === 1) {
             const {pageX, pageY, identifier} = targetTouches[0];
             if(identifier === 0) {
-                startedTouch = {
+                startedTouches[0] = {
                     touchCoordinate: { pageX, pageY },
                     timestamp: e.timeStamp
                 }
@@ -371,6 +380,15 @@ $("#root").ready(() => {
             lastPageX = pageX;
             lastPageY = pageY;
         } else {
+            const {pageX, pageY, identifier} = targetTouches[1];
+            if(e.timeStamp - startedTouches[0].timestamp <= 60 && identifier === 1) {
+                startedTouches[1] = {
+                    touchCoordinate: { pageX, pageY },
+                    timestamp: e.timeStamp
+                }
+            } else {
+                startedTouches[1] = false
+            }
             $(e.currentTarget)
                 .find('#pointer')
                 .removeClass('fa-mouse-pointer')
@@ -379,13 +397,15 @@ $("#root").ready(() => {
         }
     }).on('touchmove', e => {
         e.preventDefault();
+        const { targetTouches, changedTouches: _changedTouches } = e.originalEvent;
+        const changedTouches = [..._changedTouches].filter(touch => touch.identifier in [0, 1])
+        if(changedTouches.length === 0) return false;
         const position = $(e.currentTarget).position();
         const fontSize = parseInt($('#pointer').css('font-size'), 10)
         const offset = {
             areaWidth: Math.floor(e.currentTarget.offsetWidth - fontSize),
             areaHeight: Math.floor(e.currentTarget.offsetHeight - fontSize)
         }
-        const { targetTouches } = e.originalEvent;
         const {pageX, pageY} = targetTouches[0];
         const deltaX = pageX - lastPageX; lastPageX = pageX;
         const deltaY = pageY - lastPageY; lastPageY = pageY;
@@ -417,16 +437,18 @@ $("#root").ready(() => {
     }).on('touchend touchcancel', e => {
         e.preventDefault();
         const position = $(e.currentTarget).position();
-        const { targetTouches, changedTouches } = e.originalEvent;
+        const { targetTouches: _targetTouches, changedTouches: _changedTouches } = e.originalEvent;
+        const targetTouches = [..._targetTouches].filter(touch => touch.identifier in [0, 1]);
         const fontSize = parseInt($('#pointer').css('font-size'), 10)
         const offset = {
             areaWidth: Math.floor(e.currentTarget.offsetWidth - fontSize),
             areaHeight: Math.floor(e.currentTarget.offsetHeight - fontSize)
         }
-        if(targetTouches.length == 1) {
-            const {pageX, pageY} = targetTouches[0];
-            const top = Math.max(Math.min(pageY - position.top, offset.areaHeight), 5);
-            const left = Math.max(Math.min(pageX - position.left, offset.areaWidth), 5);
+
+        if(targetTouches.length === 1) {
+            const {pageX: _pageX, pageY: _pageY, identifier: _identifier} = targetTouches[0];
+            const top = Math.max(Math.min(_pageY - position.top, offset.areaHeight), 5);
+            const left = Math.max(Math.min(_pageX - position.left, offset.areaWidth), 5);
             $(e.currentTarget)
                 .find('#pointer')
                 .removeClass('fa-arrows-v')
@@ -434,20 +456,41 @@ $("#root").ready(() => {
                 .css('top', `${top}px`)
                 .css('left', `${left}px`)
                 .css('opacity', '1');
+            const touchendId = (_identifier + 1) % 2;
+            const changedTouches = [..._changedTouches].filter(touch => touch.identifier === touchendId);
+            const startedTouch = !!(startedTouches.at) ? startedTouches.at(touchendId)
+                : startedTouches.splice()[touchEndedId];
+            if(changedTouches.length === 1 && e.type === 'touchend' && !!startedTouch
+                && e.timeStamp - startedTouch.timestamp <= 100) {
+                const { pageX, pageY } = changedTouches[0];
+                const { touchCoordinate } = startedTouch;
+                const dx = touchCoordinate.pageX - pageX;
+                const dy = touchCoordinate.pageY - pageY;
+                const distance = Math.round(Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)));
+                startedTouches[touchendId] = distance <= 30;
+                touchEndedId = touchendId
+            }
         } else if(targetTouches.length < 1) {
             $(e.currentTarget)
                 .find('#pointer')
                 .removeClass('fa-mouse-pointer')
                 .removeClass('fa-arrows-v')
                 .css('opacity', '0');
-            const {identifier, pageX, pageY} = changedTouches[0];
-            if(e.type === 'touchend' && startedTouch !== null && identifier === 0
+            const touchendId = (touchEndedId + 1) % 2;
+            const changedTouches = [..._changedTouches].filter(touch => touch.identifier === touchendId);
+            const startedTouch = !!(startedTouches.at) ? startedTouches.at(touchendId)
+                : startedTouches.splice()[touchEndedId];
+            if(changedTouches.length === 1 && e.type === 'touchend' && !!startedTouch
                 && e.timeStamp - startedTouch.timestamp <= 100) {
+                const { pageX, pageY } = changedTouches[0];
                 const { touchCoordinate } = startedTouch;
                 const dx = touchCoordinate.pageX - pageX;
                 const dy = touchCoordinate.pageY - pageY;
                 const distance = Math.round(Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)));
-                if(distance <= 30) {
+                startedTouches[touchendId] = distance <= 30;
+                if(startedTouches.reduce((p, c) => p && !!c, true)) {
+                    clickCount = -1;
+                } else if(distance <= 30) {
                     clickCount++;
                 } else {
                     clickCount = 0;
@@ -462,10 +505,16 @@ $("#root").ready(() => {
                 setTimeout(() => {
                     const eventType = clickCount === 1 ? 'click' : 'dblclick';
                     $('#btn-left').trigger(eventType, {clickCount, source: 'touchpad'});
-                    lastMouseEventType = eventType;
                     clickCount = 0;
                 }, 200);
+            } else if(clickCount === -1) {
+                queueInsertPos = 0;
+                mouseEventQueue.fill(null);
+                $('#btn-right').trigger('click', { source: 'touchpad' });
+                clickCount = 0;
             }
+            startedTouches.fill(null);
+            touchEndedId = -1;
             lastPageX = null;
             lastPageY = null;
         }
