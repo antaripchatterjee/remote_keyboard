@@ -40,13 +40,10 @@ $("#root").ready(() => {
             doLog = false;
             if (primaryEvent === "click") {
                 $(e.target).toggleClass("hkey-clicked");
-                // const _keyCode = Number.parseInt(e.target.id.split("-")[1]);
                 if ($(e.target).hasClass("hkey-clicked")) {
                     helperKeys.push(_keyCode);
-                    // console.log('After adding helper keys in click', helperKeys)
                 } else {
                     helperKeys = helperKeys.filter((keyCode) => keyCode !== _keyCode);
-                    // console.log('After removing helper keys in click', helperKeys)
                 }
             } else if (primaryEvent === "keydown") {
                 $(e.target).addClass("hkey-clicked");
@@ -126,12 +123,11 @@ $("#root").ready(() => {
         if ([16, 17, 18, 91].includes(kue.keyCode)) {
             keyboardBtn = document.querySelector(`span#key-${kue.keyCode}`);
             helperKeys = helperKeys.filter((keyCode) => keyCode !== kue.keyCode);
-            // console.log('After removing helper keys in keyup', helperKeys)
             $(keyboardBtn).trigger("click", {
                 enableEffect: false,
                 primaryEvent: kue.type,
                 keyCode: kue.keyCode
-            }); //.removeClass('hkey-clicked')
+            });
         }
     });
 
@@ -140,14 +136,11 @@ $("#root").ready(() => {
         $(e.target).addClass("focus");
         $(document).on("keydown", (kde) => {
             kde.preventDefault();
-            if (
-                ![16, 17, 18, 91].includes(kde.keyCode) ||
-                !helperKeys.includes(kde.keyCode)
-            ) {
+            if (![16, 17, 18, 91].includes(kde.keyCode)
+                || !helperKeys.includes(kde.keyCode)) {
                 keyboardBtn = document.querySelector(`span#key-${kde.keyCode}`);
                 if ([16, 17, 18, 91].includes(kde.keyCode)) {
                     helperKeys.push(kde.keyCode);
-                    // console.log('After adding helper keys in keydown', helperKeys)
                 }
                 $(keyboardBtn).trigger("click", {
                     primaryEvent: kde.type,
