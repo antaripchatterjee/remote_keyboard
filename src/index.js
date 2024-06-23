@@ -1,157 +1,191 @@
-$("#root").ready(() => {
-    let helperKeys = [];
+document.addEventListener('DOMContentLoaded', () => {
+    const helperKeys = new Set();
+    const helperKeyIds = Object.values(
+        Object.fromEntries(document.querySelectorAll('span.key.key-helper').entries())
+    );
     let keyboardEventId = -1;
     let mouseEventId = -1;
     const MOUSE_INPUT_QUEUE_SIZE = 64;
     const MAX_SERVER_SIDE_QUEUE_SIZE = 1024;
     const mouseEventQueue = new Array(MOUSE_INPUT_QUEUE_SIZE).fill(null);
     let queueInsertPos = 0;
-
-    const rowWidth = $("div#log-input").parent().css("width");
-    $("div#log-input").parent().css("width", rowWidth);
+    let isKeydownAllowed = true;
     
-    document.addEventListener('interface-input', async (e) => {
-        console.log(e.detail)
-    })
+    const logInput = document.querySelector('div#log-input');
+    const rowWidth = logInput.parentElement.clientWidth;
+    logInput.style.maxWidth = `${rowWidth}px`;
+    const container = document.querySelector('div.container');
 
-    $("span.key").click((e, data = {}) => {
-        let params = {
-            enableEffect: true,
-            primaryEvent: e.type,
-            keyCode: Number.parseInt(e.target.id.split("-")[1]),
-            ...data,
-        };
-        const helperKeysCopy = helperKeys;
-        const { enableEffect, primaryEvent, keyCode: _keyCode } = params;
-        if(primaryEvent === 'click' && _keyCode === 27) {
-            if($('#touchpad').attr('data-pointer') === 'visible') {
-                return false;
+    document.querySelectorAll("span.key").forEach((element) => {
+        element.addEventListener("after-click", (afterClickEvent) => {
+            const { data, originalEvent: e } = afterClickEvent.detail;
+            const target = e.target ?? afterClickEvent.target;
+            const params = {
+                enableEffect: true,
+                primaryEvent: e.type,
+                keyCode: Number.parseInt(target.id.split("-")[1]),
+                ...data
+            };
+            const helperKeysCopy = [...helperKeys.values()];
+            const { enableEffect, primaryEvent, keyCode: _keyCode } = params;
+    
+            if (!logInput.classList.contains("focus")) {
+                logInput.classList.add("focus");
             }
-        }
-        let doLog = true;
-        if (!$("div#log-input").hasClass("focus")) {
-            $("div#log-input").addClass("focus");
-        }
-
-        if (e.target.id === "key-16") {
-            $("span.key.shift").toggleClass("key-shift");
-        }
-        if (["key-16", "key-17", "key-18", "key-91"].includes(e.target.id)) {
-            doLog = false;
-            if (primaryEvent === "click") {
-                $(e.target).toggleClass("hkey-clicked");
-                if ($(e.target).hasClass("hkey-clicked")) {
-                    helperKeys.push(_keyCode);
-                } else {
-                    helperKeys = helperKeys.filter((keyCode) => keyCode !== _keyCode);
+    
+            if (target.id === "key-16") {
+                document.querySelectorAll("span.key.shift").forEach(element => {
+                    element.classList.toggle("key-shift")
+                });
+            }
+    
+            let doLog = true;
+            if (helperKeyIds.includes(target.id)) {
+                doLog = false;
+                if (primaryEvent === "click") {
+                    target.classList.toggle("hkey-clicked");
+                    if (target.classList.contains("hkey-clicked")) {
+                        helperKeys.add(_keyCode);
+                    } else {
+                        helperKeys.delete(_keyCode);
+                    }
+                } else if (primaryEvent === "keydown") {
+                    target.classList.add("hkey-clicked");
+                } else if (primaryEvent === "keyup") {
+                    target.classList.remove("hkey-clicked");
                 }
-            } else if (primaryEvent === "keydown") {
-                $(e.target).addClass("hkey-clicked");
-            } else if (primaryEvent === "keyup") {
-                $(e.target).removeClass("hkey-clicked");
+            } else {
+                if (enableEffect) {
+                    target.classList.add("key-clicked");
+                    setTimeout(() => target.classList.remove("key-clicked"), 20);
+                }
+                [17, 18, 91].forEach((keyCode) => {
+                    document.querySelector(`span.key#key-${keyCode}`)
+                        .classList.remove("hkey-clicked");
+                    helperKeys.delete(keyCode);
+                });
             }
-        } else {
-            if (enableEffect) {
-                $(e.target).addClass("key-clicked");
-                setTimeout(() => $(e.target).removeClass("key-clicked"), 50);
-            }
-            $([17, 18, 91].map((e) => `span.key#key-${e}`).join(", ")).removeClass(
-                "hkey-clicked"
-            );
-            helperKeys = helperKeys.filter(
-                (keyCode) => ![17, 18, 19].includes(keyCode)
-            );
-        }
-        if (enableEffect) {
-            if (doLog) {
-                const pressedKey = $(e.target).hasClass("key-shift")
-                    ? $(e.target).data("shift")
-                    : $(e.target).data("key");
+    
+            if (enableEffect && doLog) {
+                const pressedKey = target.classList.contains("key-shift")
+                    ? target.getAttribute("data-shift")
+                    : target.getAttribute("data-key");
                 let logKey = null;
                 let isShortcutKey = false;
-                if (
-                    helperKeysCopy.length === 0 ||
-                    (helperKeysCopy.length === 1 && helperKeysCopy[0] === 16)
-                ) {
+                if (helperKeysCopy.length === 0 ||
+                    (helperKeysCopy.length === 1 && helperKeysCopy[0] === 16)) {
                     logKey = pressedKey;
                 } else {
-                    logKey =
-                        helperKeysCopy
-                            .map((keyId) => $(`span#key-${keyId}`).data("key"))
-                            .join(" + ")
-                            .toUpperCase() + ` + ${$(e.target).data("key")}`;
+                    logKey = helperKeysCopy.map((keyCode) => {
+                        return document.querySelector(`span#key-${keyCode}`).getAttribute("data-key")
+                    }).join(" + ").toUpperCase() + ` + ${target.getAttribute("data-key")}`;
                     isShortcutKey = true;
                 }
-                const new_children = $(document.createElement("span"))
-                    .attr({ "data-log-text": logKey })
-                    .addClass("log-key")
-                    .addClass(() =>
-                        isShortcutKey
-                            ? "non-printable-shortcut"
-                            : [...e.target.classList].filter((c) =>
-                                ["key-symbol", "key-letter", "key-number"].includes(c)
-                            ).length > 0
-                                ? "printable"
-                                : "non-printable"
-                    );
-                $("div#log-input")
-                    .append(new_children)
-                    .scrollTop($("div#log-input").prop("scrollHeight"));
-                const interfaceKeyboard = new CustomEvent('interface-input', {
+                const newChildren = document.createElement("span");
+                newChildren.setAttribute("data-log-text", logKey);
+                newChildren.classList.add("log-key");
+                newChildren.classList.add(isShortcutKey ? "non-printable-shortcut"
+                    : [...target.classList].some((c) =>{
+                        return ["key-symbol", "key-letter", "key-number"].includes(c)
+                    }) ? "printable" : "non-printable");
+                const logInput = document.querySelector("div#log-input");
+                logInput.appendChild(newChildren);
+                logInput.scrollTop = logInput.scrollHeight;
+    
+                const interfaceKeyboard = new CustomEvent("interface-input", {
                     detail: {
-                        interfaceType: 'keyboard',
-                        eventType: 'keypress',
+                        interfaceType: "keyboard",
+                        eventType: "keypress",
                         data: {
-                            key: logKey
+                            key: logKey,
                         },
-                        identifier: (keyboardEventId = ((keyboardEventId + 1) % MOUSE_INPUT_QUEUE_SIZE))
-                    }
+                        identifier: (keyboardEventId =
+                            (keyboardEventId + 1) % MOUSE_INPUT_QUEUE_SIZE),
+                    },
                 });
-                document.dispatchEvent(interfaceKeyboard)
+                document.dispatchEvent(interfaceKeyboard);
             }
-        }
-        e.stopPropagation();
+            e.stopPropagation();
+        });
+
+        element.addEventListener('click', e => {
+            const afterClickEvent = new CustomEvent('after-click', {
+                detail: {
+                    originalEvent: e
+                }
+            });
+            e.target.dispatchEvent(afterClickEvent);
+        })
     });
 
     const removeKeydown = (e) => {
-        $("div#log-input").removeClass("focus");
-        $(document).off("keydown");
+        logInput.classList.remove('focus');
+        isKeydownAllowed = false;
     };
-    $("div.keyboard").click((e) => removeKeydown(e));
-
-    $(document).on("keyup", (kue) => {
-        if ([16, 17, 18, 91].includes(kue.keyCode)) {
-            keyboardBtn = document.querySelector(`span#key-${kue.keyCode}`);
-            helperKeys = helperKeys.filter((keyCode) => keyCode !== kue.keyCode);
-            $(keyboardBtn).trigger("click", {
-                enableEffect: false,
-                primaryEvent: kue.type,
-                keyCode: kue.keyCode
-            });
-        }
+    // $("div.keyboard").click((e) => removeKeydown(e));
+    container.addEventListener('click', e => {
+        removeKeydown(e);
+        e.stopPropagation();
     });
 
-    $("div#log-input").click((e) => {
-        removeKeydown(e);
-        $(e.target).addClass("focus");
-        $(document).on("keydown", (kde) => {
-            kde.preventDefault();
-            if (![16, 17, 18, 91].includes(kde.keyCode)
-                || !helperKeys.includes(kde.keyCode)) {
-                keyboardBtn = document.querySelector(`span#key-${kde.keyCode}`);
-                if ([16, 17, 18, 91].includes(kde.keyCode)) {
-                    helperKeys.push(kde.keyCode);
-                }
-                $(keyboardBtn).trigger("click", {
-                    primaryEvent: kde.type,
-                    keyCode: kde.keyCode
-                });
-            }
-            kde.stopPropagation();
-            return false;
-        });
+    logInput.addEventListener('click', e => {
         e.stopPropagation();
-    }).trigger('click');
+        // removeKeydown(e);
+        // $(e.target).addClass("focus");
+        logInput.classList.add('focus');
+        isKeydownAllowed = true;
+    });
+
+    document.addEventListener("keyup", (kue) => {
+        const charCode = kue.keyCode;
+        if ([16, 17, 18, 91].includes(charCode)) {
+            const keyboardBtn = document.querySelector(`span#key-${charCode}`);
+            helperKeys.delete(charCode);
+            const afterClickEvent = new CustomEvent('after-click', {
+                detail: {
+                    originalEvent: new PointerEvent('click', {
+                        view: window,
+                        cancelable: true,
+                        bubbles: true
+                    }),
+                    data: {
+                        primaryEvent: kue.type,
+                        keyCode: charCode
+                    }
+                }
+            });
+            keyboardBtn.dispatchEvent(afterClickEvent);
+        }
+        kue.stopPropagation();
+    });
+
+    document.addEventListener("keydown", (kde) => {
+        kde.preventDefault();
+        if(!isKeydownAllowed) return false;
+        const charCode = kde.keyCode;
+        if (![16, 17, 18, 91].includes(charCode) || !helperKeys.has(charCode)) {
+            const keyboardBtn = document.querySelector(`span#key-${charCode}`);
+            if ([16, 17, 18, 91].includes(charCode)) {
+                helperKeys.add(charCode);
+            }
+            const afterClickEvent = new CustomEvent('after-click', {
+                detail: {
+                    originalEvent: new PointerEvent('click', {
+                        view: window,
+                        cancelable: true,
+                        bubbles: true
+                    }),
+                    data: {
+                        primaryEvent: kde.type,
+                        keyCode: charCode
+                    }
+                }
+            });
+            keyboardBtn.dispatchEvent(afterClickEvent);
+        }
+        kde.stopPropagation();
+        return false;
+    });
     
     let lastPageX = null, lastPageY = null, lastMouseEventType = 'touchend';
     let secondClickTs = NaN, clickCount = 0, startedTouches = [null, null], touchEndedId = -1;

@@ -19,7 +19,7 @@
                     </div>
                     <div class="row">
                         <!-- <input type="text" name="log-input" id="log-input" disabled> -->
-                        <div id="log-input"></div>
+                        <div id="log-input" class="focus"></div>
                     </div>
                     <div class="row">
                         <span class="key key-text" data-key="Esc" id="key-27"></span>
@@ -92,7 +92,7 @@
                         <span class="key key-icon fa fa-caret-square-o-down with-text" data-key="PgDn" id="key-34"></span>
                     </div>
                     <div class="row">
-                        <span class="key key-icon key-s-6 key-a-left fa fa-long-arrow-up with-text" data-key="Shift" id="key-16"></span>
+                        <span class="key key-icon key-helper key-s-6 key-a-left fa fa-long-arrow-up with-text" data-key="Shift" id="key-16"></span>
                         <span class="key key-letter shift" data-shift="Z" data-key="z" id="key-90"></span>
                         <span class="key key-letter shift" data-shift="X" data-key="x" id="key-88"></span>
                         <span class="key key-letter shift" data-shift="C" data-key="c" id="key-67"></span>
@@ -105,14 +105,12 @@
                         <span class="key key-symbol shift" data-shift="?" data-key="/" id="key-191"></span>
                         <span class="key key-icon key-s-4 key-a-right fa fa-file-text" data-key="Notepad" id="key-notepad"></span>
                         <span class="key key-icon fa fa-caret-up" data-key="UpArrow" id="key-38"></span>
-                        <!-- <span class="key key-icon fa fa-pause-circle with-text" data-key="Pause" id="key-19"></span> -->
                         <span class="key key-text shift" data-key="Pause" data-shift="Break" id="key-19"></span>
-                        <!-- <span class="key key-icon fa fa-times-circle with-text" data-key="Break" id="key-19-b"></span> -->
                     </div>
                     <div class="row">
-                        <span class="key key-text" data-key="Ctrl" id="key-17"></span>
-                        <span class="key key-icon fa fa-windows" data-key="Start" id="key-91"></span>
-                        <span class="key key-text" data-key="Alt" id="key-18"></span>
+                        <span class="key key-text key-helper" data-key="Ctrl" id="key-17"></span>
+                        <span class="key key-icon fa fa-windows key-helper" data-key="Start" id="key-91"></span>
+                        <span class="key key-text key-helper" data-key="Alt" id="key-18"></span>
                         <span class="key key-space" data-key="Space" id="key-32"></span>
                         <span class="key key-icon fa fa-list-alt" data-key="Context Menu" id="key-93"></span>
                         <span class="key key-icon fa fa-calculator" data-key="Calculator" id="key-calc"></span>
@@ -141,6 +139,7 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous">
         </script>
-        <script src="static/index.js"></script>
+        <script src="src/controller.js"></script>
+        <script src="src/index.js"></script>
     </body>
 </html>
