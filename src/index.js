@@ -192,10 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let mouseMoveTimeout = null, mouseLeftClickTimeout = null;
     if(window.matchMedia("(any-pointer: coarse)").matches) {
         // touch device only
-        $('#touchpad').append(`
-            <span class="fa fa-xl mouse-pointer"
-                id="pointer" style="top: 5px; left: 5px;"></span>    
-        `)
+        $('#touchpad').append(`<span class="fa fa-xl mouse-pointer"
+            id="pointer" style="top: 5px; left: 5px;"></span>`)
     }
 
     function fireQueuedMouseEvents(eventType) {
