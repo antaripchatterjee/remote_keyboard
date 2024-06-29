@@ -124,7 +124,11 @@ div.row span.key {
 }
 
 div.row span.key-space {
-    width: 360px;
+    width: 332px;
+}
+
+div.row span.key-s-6 {
+    width: 156px;
 }
 
 div.row span.key-s-6 {
@@ -166,13 +170,13 @@ div.row span.key:after {
     content: attr(data-key);
 }
 
-div.row span.key-shift {
+div.row span.key-shift:not(.no-transform) {
     text-transform: capitalize;
 }
 
-div.row span#key-19 {
+/* div.row span#key-19 {
     text-transform: lowercase;
-}
+} */
 
 div.row span.key-shift:after {
     content: attr(data-shift);
@@ -219,7 +223,7 @@ div.row span.key#key-mouse:before {
 }
 
 div.row span.key.key-clicked, div.row .hkey-clicked {
-    background-color: cornsilk;
+    background-color: cornsilk !important;
     color: cornflowerblue;
     transform: scale(0.9);
 }
@@ -314,9 +318,6 @@ div.switch.on span.slider {
     cursor: none;
 }
 
-/* .mouse-touchpad[data-pointer="visible"] {
-    
-} */
 
 .mouse-pointer {
     cursor: grabbing;

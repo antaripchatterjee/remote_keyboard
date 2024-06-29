@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const helperKeys = new Set();
     const helperKeyIds = Object.values(
         Object.fromEntries(document.querySelectorAll('span.key.key-helper').entries())
-    );
+    ).map(helperKey => helperKey.id);
     let keyboardEventId = -1;
     let mouseEventId = -1;
     const MOUSE_INPUT_QUEUE_SIZE = 64;
@@ -28,12 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const helperKeysCopy = [...helperKeys.values()];
             const { enableEffect, primaryEvent, keyCode: _keyCode } = params;
-    
             if (!logInput.classList.contains("focus")) {
                 logInput.classList.add("focus");
             }
     
-            if (target.id === "key-16") {
+            if (_keyCode === 16) {
                 document.querySelectorAll("span.key.shift").forEach(element => {
                     element.classList.toggle("key-shift")
                 });
@@ -75,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (helperKeysCopy.length === 0 ||
                     (helperKeysCopy.length === 1 && helperKeysCopy[0] === 16)) {
                     logKey = pressedKey;
+                    isShortcutKey = e.target?.id === 'key-alt-ctrl-del' || e.target?.id === 'key-alt-tab';
                 } else {
                     logKey = helperKeysCopy.map((keyCode) => {
                         return document.querySelector(`span#key-${keyCode}`).getAttribute("data-key")
@@ -137,9 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener("keyup", (kue) => {
+        kue.preventDefault();
         const charCode = kue.keyCode;
         if ([16, 17, 18, 91].includes(charCode)) {
-            const keyboardBtn = document.querySelector(`span#key-${charCode}`);
+            const keyboardBtn = document.getElementById(`key-${charCode}`);
             helperKeys.delete(charCode);
             const afterClickEvent = new CustomEvent('after-click', {
                 detail: {
@@ -157,17 +158,20 @@ document.addEventListener('DOMContentLoaded', () => {
             keyboardBtn.dispatchEvent(afterClickEvent);
         }
         kue.stopPropagation();
+        return false;
     });
 
     document.addEventListener("keydown", (kde) => {
         kde.preventDefault();
+        kde.stopPropagation();
         if(!isKeydownAllowed) return false;
         const charCode = kde.keyCode;
+        if(charCode === 20) return false; // caps lock
         if (![16, 17, 18, 91].includes(charCode) || !helperKeys.has(charCode)) {
-            const keyboardBtn = document.querySelector(`span#key-${charCode}`);
             if ([16, 17, 18, 91].includes(charCode)) {
                 helperKeys.add(charCode);
             }
+            const keyboardBtn = document.getElementById(`key-${charCode}`);
             const afterClickEvent = new CustomEvent('after-click', {
                 detail: {
                     originalEvent: new PointerEvent('click', {
@@ -183,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             keyboardBtn.dispatchEvent(afterClickEvent);
         }
-        kde.stopPropagation();
         return false;
     });
     
