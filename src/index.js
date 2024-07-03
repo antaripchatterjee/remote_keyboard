@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logInput.classList.remove('focus');
         isKeydownAllowed = false;
     };
-    // $("div.keyboard").click((e) => removeKeydown(e));
+
     container.addEventListener('click', e => {
         removeKeydown(e);
         e.stopPropagation();
@@ -130,8 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logInput.addEventListener('click', e => {
         e.stopPropagation();
-        // removeKeydown(e);
-        // $(e.target).addClass("focus");
         logInput.classList.add('focus');
         isKeydownAllowed = true;
     });
@@ -193,10 +191,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastPageX = null, lastPageY = null, lastMouseEventType = 'touchend';
     let secondClickTs = NaN, clickCount = 0, startedTouches = [null, null], touchEndedId = -1;
     let mouseMoveTimeout = null, mouseLeftClickTimeout = null;
+    const touchpad = document.getElementById('touchpad');
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
     if(window.matchMedia("(any-pointer: coarse)").matches) {
         // touch device only
-        $('#touchpad').append(`<span class="fa fa-xl mouse-pointer"
-            id="pointer" style="top: 5px; left: 5px;"></span>`)
+        const pointer = document.createElement('span');
+        pointer.id = "pointer";
+        pointer.className = "fa mouse-pointer";
+        pointer.style.cssText = "top: 5px; left: 5px; font-size: 24px;";
+        touchpad.appendChild(pointer);
     }
 
     function fireQueuedMouseEvents(eventType) {
@@ -220,20 +224,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
 
-    $('#btn-right').on('click', (e, c)=> {
+    btnRight.addEventListener('after-click', afterClickEvent => {
+        const { data: c, originalEvent: e} = afterClickEvent.detail;
+        const target = e.target ?? afterClickEvent.target;
         e.preventDefault();
         const data = c ?? {
             source: 'right-button'
         };
         if(data.source === 'right-button') {
-            $('#btn-right').addClass('hkey-clicked');
-            setTimeout(() => $('#btn-right').removeClass('hkey-clicked'), 20)
+            target.classList.add('hkey-clicked')
+            setTimeout(() => target.classList.remove('hkey-clicked'), 20)
         }
         mouseEventQueue[queueInsertPos++] = {
-            ctrlKey: helperKeys.includes(17),
-            shiftKey: helperKeys.includes(16),
-            altKey: helperKeys.includes(18),
-            metaKey: helperKeys.includes(91),
+            ctrlKey: helperKeys.has(17),
+            shiftKey: helperKeys.has(16),
+            altKey: helperKeys.has(18),
+            metaKey: helperKeys.has(91),
             clickCount: 1,
             ...data
         }
@@ -241,7 +247,18 @@ document.addEventListener('DOMContentLoaded', () => {
         lastMouseEventType = 'rclick';
     });
 
-    $('#btn-left').on('click dblclick', (e, c) => {
+    btnRight.addEventListener('click', e => {
+        const afterClickEvent = new CustomEvent('after-click', {
+            detail: {
+                originalEvent: e
+            }
+        });
+        e.target.dispatchEvent(afterClickEvent);
+    });
+
+    btnLeft.addEventListener('after-click', afterClickEvent => {
+        const { data: c, originalEvent: e} = afterClickEvent.detail;
+        const target = e.target ?? afterClickEvent.target;
         e.preventDefault();
         const data = c ?? {
             clickCount: e.type === 'click' ? 1 : 2, 
@@ -249,16 +266,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const eventType = e.type === 'click' ? 'lclick' : 'dblclick';
         if(data.source === 'left-button') {
-            $('#btn-left').addClass('hkey-clicked');
-            setTimeout(() => $('#btn-left').removeClass('hkey-clicked'), 20);
+            target.classList.add('hkey-clicked')
+            setTimeout(() => target.classList.remove('hkey-clicked'), 20);
             if(eventType === 'lclick') {
                 if(mouseLeftClickTimeout === null) {
                     mouseLeftClickTimeout = setTimeout((eventType, data) => {
                         mouseEventQueue[queueInsertPos++] = {
-                            ctrlKey: helperKeys.includes(17),
-                            shiftKey: helperKeys.includes(16),
-                            altKey: helperKeys.includes(18),
-                            metaKey: helperKeys.includes(91),
+                            ctrlKey: helperKeys.add(17),
+                            shiftKey: helperKeys.add(16),
+                            altKey: helperKeys.add(18),
+                            metaKey: helperKeys.add(91),
                             ...data
                         };
                         fireQueuedMouseEvents(eventType);
@@ -271,20 +288,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     mouseLeftClickTimeout = null;
                 }
                 mouseEventQueue[queueInsertPos++] = {
-                    ctrlKey: helperKeys.includes(17),
-                    shiftKey: helperKeys.includes(16),
-                    altKey: helperKeys.includes(18),
-                    metaKey: helperKeys.includes(91),
+                    ctrlKey: helperKeys.has(17),
+                    shiftKey: helperKeys.has(16),
+                    altKey: helperKeys.has(18),
+                    metaKey: helperKeys.has(91),
                     ...data
                 };
                 fireQueuedMouseEvents(eventType);
             }
         } else {
             mouseEventQueue[queueInsertPos++] = {
-                ctrlKey: helperKeys.includes(17),
-                shiftKey: helperKeys.includes(16),
-                altKey: helperKeys.includes(18),
-                metaKey: helperKeys.includes(91),
+                ctrlKey: helperKeys.has(17),
+                shiftKey: helperKeys.has(16),
+                altKey: helperKeys.has(18),
+                metaKey: helperKeys.has(91),
                 ...data
             };
             fireQueuedMouseEvents(eventType);
@@ -292,95 +309,131 @@ document.addEventListener('DOMContentLoaded', () => {
         lastMouseEventType = eventType;
     });
 
-    $('#touchpad').on('click', e => {
+    (['click', 'dblclick']).forEach(eventName => btnLeft.addEventListener(eventName, e => {
+        const afterClickEvent = new CustomEvent('after-click', {
+            detail: {
+                originalEvent: e
+            }
+        });
+        e.target.dispatchEvent(afterClickEvent);
+    }));
+
+    touchpad.addEventListener('click', e => {
         e.preventDefault();
-        if($(e.currentTarget).attr('data-pointer') === 'hidden') {
-            $(e.currentTarget).attr('data-pointer', 'visible')
-        } else {
-            if(Number.isNaN(secondClickTs) && clickCount === 0) {
-                setTimeout(({firstClickTs}) => {
-                    if((secondClickTs - firstClickTs > 300) || clickCount === 1) {
-                        $('#btn-left').trigger('click', { clickCount, source: 'touchpad' })
-                    } else {
-                        $('#btn-left').trigger('dblclick', { clickCount, source: 'touchpad'  })
+        if(e.currentTarget.getAttribute('data-pointer') === 'hidden') {
+            e.currentTarget.setAttribute('data-pointer', 'visible');
+            return false;
+        }
+        if(Number.isNaN(secondClickTs) && clickCount === 0) {
+            setTimeout(({firstClickTs}) => {
+                const originalEvent = (secondClickTs - firstClickTs > 300) 
+                    || clickCount === 1 ? 'click' : 'dblclick';
+                const afterClickEvent = new CustomEvent('after-click', {
+                    detail: {
+                        originalEvent: new PointerEvent(originalEvent, {
+                            view: window,
+                            cancelable: true,
+                            bubbles: true
+                        }),
+                        data: {
+                            clickCount,
+                            source: 'touchpad'
+                        }
                     }
-                    clickCount = 0;
-                    secondClickTs = NaN;
-                }, 200, {firstClickTs: e.timeStamp});
-            } else if(clickCount === 1) {
-                secondClickTs = e.timeStamp;
-            }
-            clickCount++;
+                });
+                btnLeft.dispatchEvent(afterClickEvent);
+                clickCount = 0;
+                secondClickTs = NaN;
+            }, 200, {firstClickTs: e.timeStamp});
+        } else if(clickCount === 1) {
+            secondClickTs = e.timeStamp;
         }
-    }).on('contextmenu', e => {
+        clickCount++;
+    });
+
+    touchpad.addEventListener('contextmenu', e => {
         e.preventDefault();
-        $(e.currentTarget).trigger('mouseleave');
-    })
-    .on('mouseleave', e => {
+        e.currentTarget.dispatchEvent(new Event('mouseleave'));
+    });
+
+    touchpad.addEventListener('mouseleave', e => {
         e.preventDefault();
-        if($(e.currentTarget).attr('data-pointer') === 'visible') {
+        if(e.currentTarget.getAttribute('data-pointer') !== 'visible') {
+            return false;
+        }
+        fireQueuedMouseEvents(lastMouseEventType);
+        lastMouseEventType = 'mouseleave';
+        e.currentTarget.setAttribute('data-pointer', 'hidden');
+    });
+
+    touchpad.addEventListener('mousemove', e => {
+        e.preventDefault();
+        if(e.currentTarget.getAttribute('data-pointer') !== 'visible') {
+            return false;
+        }
+        clearTimeout(mouseMoveTimeout);
+        const eventType = 'mousemove';
+        const { movementX, movementY } = e;
+        if(eventType !== (lastMouseEventType ?? eventType) || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
             fireQueuedMouseEvents(lastMouseEventType);
-            lastMouseEventType = 'mouseleave';
-            $(e.currentTarget).attr('data-pointer', 'hidden').off('keyup');
         }
-    }).on('mousemove', e => {
-        e.preventDefault();
-        if($(e.currentTarget).attr('data-pointer') === 'visible') {
-            clearTimeout(mouseMoveTimeout);
-            const eventType = 'mousemove';
-            const { movementX, movementY } = e.originalEvent;
-            if(eventType !== (lastMouseEventType ?? eventType) || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
-                fireQueuedMouseEvents(lastMouseEventType);
-            }
-            mouseEventQueue[queueInsertPos++] = {
-                source: 'touchpad',
-                deltaX: movementX,
-                deltaY: movementY,
-                deltaZ: 0,
-                deltaMode: 0,
-                ctrlKey: helperKeys.includes(17),
-                shiftKey: helperKeys.includes(16),
-                altKey: helperKeys.includes(18),
-                metaKey: helperKeys.includes(91)
-            };
-            mouseMoveTimeout = setTimeout(eventType => {
-                fireQueuedMouseEvents(eventType);
-                mouseMoveTimeout = null;
-            }, 200, eventType);
-            lastMouseEventType = eventType;
-        }
-    }).on('wheel', e => {
-        e.preventDefault();
-        if($(e.currentTarget).attr('data-pointer') === 'visible') {
-            const eventType = 'wheel';
-            const { deltaX, deltaY, deltaZ, deltaMode } = e.originalEvent;
-            if(lastMouseEventType !== eventType || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
-                fireQueuedMouseEvents(lastMouseEventType);
-            }
-            mouseEventQueue[queueInsertPos++] = {
-                source: 'touchpad',
-                deltaX,
-                deltaY,
-                deltaZ,
-                deltaMode,
-                ctrlKey: helperKeys.includes(17),
-                shiftKey: helperKeys.includes(16),
-                altKey: helperKeys.includes(18),
-                metaKey: helperKeys.includes(91)
-            }
+        mouseEventQueue[queueInsertPos++] = {
+            source: 'touchpad',
+            deltaX: movementX,
+            deltaY: movementY,
+            deltaZ: 0,
+            deltaMode: 0,
+            ctrlKey: helperKeys.has(17),
+            shiftKey: helperKeys.has(16),
+            altKey: helperKeys.has(18),
+            metaKey: helperKeys.has(91)
+        };
+        mouseMoveTimeout = setTimeout(eventType => {
             fireQueuedMouseEvents(eventType);
-            lastMouseEventType = eventType;
+            mouseMoveTimeout = null;
+        }, 200, eventType);
+        lastMouseEventType = eventType;
+    });
+
+    touchpad.addEventListener('wheel', e => {
+        e.preventDefault();
+        if(e.currentTarget.getAttribute('data-pointer') !== 'visible') {
+            return false;
         }
-    }).on('touchstart', e => {
+        const eventType = 'wheel';
+        const { deltaX, deltaY, deltaZ, deltaMode } = e;
+        if(lastMouseEventType !== eventType || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
+            fireQueuedMouseEvents(lastMouseEventType);
+        }
+        mouseEventQueue[queueInsertPos++] = {
+            source: 'touchpad',
+            deltaX,
+            deltaY,
+            deltaZ,
+            deltaMode,
+            ctrlKey: helperKeys.has(17),
+            shiftKey: helperKeys.has(16),
+            altKey: helperKeys.has(18),
+            metaKey: helperKeys.has(91)
+        }
+        fireQueuedMouseEvents(eventType);
+        lastMouseEventType = eventType;
+    });
+
+    touchpad.addEventListener('touchstart', e => {
         e.preventDefault();
         if(startedTouches.findIndex(t => t === null) === -1) return false;
-        const position = $(e.currentTarget).position();
-        const fontSize = parseInt($('#pointer').css('font-size'), 10)
+        const position = {
+            top: e.currentTarget.offsetTop,
+            left: e.currentTarget.offsetLeft
+        };
+        const pointer = document.getElementById('pointer');
+        const fontSize = parseInt(pointer.style.fontSize, 10);
         const offset = {
             areaWidth: Math.floor(e.currentTarget.offsetWidth - fontSize),
             areaHeight: Math.floor(e.currentTarget.offsetHeight - fontSize)
         }
-        const { targetTouches: _targetTouches } = e.originalEvent;
+        const { targetTouches: _targetTouches } = e;
         const targetTouches = [..._targetTouches].filter(touch => touch.identifier in [0, 1]);
         
         if(targetTouches.length === 1) {
@@ -393,12 +446,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const top = Math.max(Math.min(pageY - position.top, offset.areaHeight), 5);
             const left = Math.max(Math.min(pageX - position.left, offset.areaWidth), 5);
-            $(e.currentTarget)
-                .find('#pointer')
-                .css('top', `${top}px`)
-                .css('left', `${left}px`)
-                .css('opacity', '1')
-                .addClass('fa-mouse-pointer');
+            pointer.style.top = `${top}px`;
+            pointer.style.left = `${left}px`;
+            pointer.classList.add('fa-mouse-pointer');
+            pointer.classList.remove('fa-arrows-v');
+            pointer.style.opacity = '1';
             lastPageX = pageX;
             lastPageY = pageY;
         } else {
@@ -411,19 +463,23 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 startedTouches[1] = false
             }
-            $(e.currentTarget)
-                .find('#pointer')
-                .removeClass('fa-mouse-pointer')
-                .css('opacity', '1')
-                .addClass('fa-arrows-v');
+            pointer.classList.remove('fa-mouse-pointer');
+            pointer.classList.add('fa-arrows-v');
+            pointer.style.opacity = '1';
         }
-    }).on('touchmove', e => {
+    });
+
+    touchpad.addEventListener('touchmove', e => {
         e.preventDefault();
-        const { targetTouches, changedTouches: _changedTouches } = e.originalEvent;
+        const { targetTouches, changedTouches: _changedTouches } = e;
         const changedTouches = [..._changedTouches].filter(touch => touch.identifier in [0, 1])
         if(changedTouches.length === 0) return false;
-        const position = $(e.currentTarget).position();
-        const fontSize = parseInt($('#pointer').css('font-size'), 10)
+        const position = {
+            top: e.currentTarget.offsetTop,
+            left: e.currentTarget.offsetLeft
+        };
+        const pointer = document.getElementById('pointer');
+        const fontSize = parseInt(pointer.style.fontSize, 10);
         const offset = {
             areaWidth: Math.floor(e.currentTarget.offsetWidth - fontSize),
             areaHeight: Math.floor(e.currentTarget.offsetHeight - fontSize)
@@ -435,10 +491,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // move mouse pointer
             const top = Math.max(Math.min(pageY - position.top, offset.areaHeight), 5);
             const left = Math.max(Math.min(pageX - position.left, offset.areaWidth), 5);
-            $(e.currentTarget)
-                .find('#pointer')
-                .css('top', `${top}px`)
-                .css('left', `${left}px`);
+            pointer.style.top = `${top}px`;
+            pointer.style.left = `${left}px`;
         }
         const eventType = targetTouches.length === 1 ? 'mousemove' : 'wheel';
         if(eventType !== (lastMouseEventType ?? eventType) || queueInsertPos >= MOUSE_INPUT_QUEUE_SIZE) {
@@ -450,18 +504,24 @@ document.addEventListener('DOMContentLoaded', () => {
             deltaY,
             deltaZ: 0,
             deltaMode: 0,
-            ctrlKey: helperKeys.includes(17),
-            shiftKey: helperKeys.includes(16),
-            altKey: helperKeys.includes(18),
-            metaKey: helperKeys.includes(91)
+            ctrlKey: helperKeys.has(17),
+            shiftKey: helperKeys.has(16),
+            altKey: helperKeys.has(18),
+            metaKey: helperKeys.has(91)
         };
         lastMouseEventType = eventType;
-    }).on('touchend touchcancel', e => {
+    });
+
+    (['touchend', 'touchcancel']).forEach(eventName => touchpad.addEventListener(eventName, e => {
         e.preventDefault();
-        const position = $(e.currentTarget).position();
-        const { targetTouches: _targetTouches, changedTouches: _changedTouches } = e.originalEvent;
+        const position = {
+            top: e.currentTarget.offsetTop,
+            left: e.currentTarget.offsetLeft
+        };
+        const pointer = document.getElementById('pointer');
+        const fontSize = parseInt(pointer.style.fontSize, 10);
+        const { targetTouches: _targetTouches, changedTouches: _changedTouches } = e;
         const targetTouches = [..._targetTouches].filter(touch => touch.identifier in [0, 1]);
-        const fontSize = parseInt($('#pointer').css('font-size'), 10)
         const offset = {
             areaWidth: Math.floor(e.currentTarget.offsetWidth - fontSize),
             areaHeight: Math.floor(e.currentTarget.offsetHeight - fontSize)
@@ -471,13 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const {pageX: _pageX, pageY: _pageY, identifier: _identifier} = targetTouches[0];
             const top = Math.max(Math.min(_pageY - position.top, offset.areaHeight), 5);
             const left = Math.max(Math.min(_pageX - position.left, offset.areaWidth), 5);
-            $(e.currentTarget)
-                .find('#pointer')
-                .removeClass('fa-arrows-v')
-                .addClass('fa-mouse-pointer')
-                .css('top', `${top}px`)
-                .css('left', `${left}px`)
-                .css('opacity', '1');
+            pointer.classList.remove('fa-arrows-v');
+            pointer.classList.add('fa-mouse-pointer');
+            pointer.style.top = `${top}px`;
+            pointer.style.left = `${left}px`;
+            pointer.style.opacity = '1';
             const touchendId = (_identifier + 1) % 2;
             const changedTouches = [..._changedTouches].filter(touch => touch.identifier === touchendId);
             const startedTouch = !!(startedTouches.at) ? startedTouches.at(touchendId)
@@ -493,11 +551,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 touchEndedId = touchendId
             }
         } else if(targetTouches.length < 1) {
-            $(e.currentTarget)
-                .find('#pointer')
-                .removeClass('fa-mouse-pointer')
-                .removeClass('fa-arrows-v')
-                .css('opacity', '0');
+            pointer.classList.remove('fa-mouse-pointer');
+            pointer.classList.remove('fa-arrows-v');
+            pointer.style.opacity = '0';
             const touchendId = (touchEndedId + 1) % 2;
             const changedTouches = [..._changedTouches].filter(touch => touch.identifier === touchendId);
             const startedTouch = !!(startedTouches.at) ? startedTouches.at(touchendId)
@@ -525,14 +581,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 queueInsertPos = 0;
                 mouseEventQueue.fill(null);
                 setTimeout(() => {
-                    const eventType = clickCount === 1 ? 'click' : 'dblclick';
-                    $('#btn-left').trigger(eventType, {clickCount, source: 'touchpad'});
+                    const originalEvent = clickCount === 1 ? 'click' : 'dblclick';
+                    const afterClickEvent = new CustomEvent('after-click', {
+                        detail: {
+                            originalEvent: new PointerEvent(originalEvent, {
+                                view: window,
+                                cancelable: true,
+                                bubbles: true
+                            }),
+                            data: {
+                                clickCount,
+                                source: 'touchpad'
+                            }
+                        }
+                    });
+                    btnLeft.dispatchEvent(afterClickEvent);
                     clickCount = 0;
                 }, 200);
             } else if(clickCount === -1) {
                 queueInsertPos = 0;
                 mouseEventQueue.fill(null);
-                $('#btn-right').trigger('click', { source: 'touchpad' });
+                const afterClickEvent = new CustomEvent('after-click', {
+                    detail: {
+                        originalEvent: new PointerEvent('click', {
+                            view: window,
+                            cancelable: true,
+                            bubbles: true
+                        }),
+                        data: { source: 'touchpad' }
+                    }
+                });
+                btnRight.dispatchEvent(afterClickEvent);
                 clickCount = 0;
             }
             startedTouches.fill(null);
@@ -540,5 +619,5 @@ document.addEventListener('DOMContentLoaded', () => {
             lastPageX = null;
             lastPageY = null;
         }
-    })
+    }));
 });
