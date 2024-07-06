@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newChildren = document.createElement("span");
                 newChildren.setAttribute("data-log-text", logKey);
                 newChildren.classList.add("log-key");
-                newChildren.classList.add(isShortcutKey ? "non-printable-shortcut"
+                newChildren.classList.add(isShortcutKey ? "shortcut"
                     : [...target.classList].some((c) =>{
                         return ["key-symbol", "key-letter", "key-number"].includes(c)
                     }) ? "printable" : "non-printable");
@@ -620,4 +620,82 @@ document.addEventListener('DOMContentLoaded', () => {
             lastPageY = null;
         }
     }));
+    
+    const themeToggler = document.getElementById('theme-toggler');
+    const colorSchemesInOrder = ['dark', 'system', 'light'];
+    let colorScheme = window.localStorage.getItem('colorScheme')?.toLowerCase() ?? 'system';
+    let colorSchemeIndex = colorSchemesInOrder.findIndex(cs => cs === colorScheme);
+    if(colorSchemeIndex === -1) {
+        if(window.matchMedia) {
+            colorScheme = 'system';
+            colorSchemeIndex = 1;
+        } else {
+            colorScheme = 'dark';
+            colorSchemeIndex = 0;
+            colorSchemesInOrder.splice(1, 1);
+        }
+        window.localStorage.removeItem('colorScheme');
+    }
+    let isManualColorScheme = colorScheme !== 'system';
+    if(window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if(!isManualColorScheme) {
+                const newColorScheme = event.matches ? "dark" : "light";
+                const oldColorScheme = event.matches ? "light" : "dark";
+                document.querySelectorAll('.theme').forEach(element => {
+                    element.classList.replace(oldColorScheme, newColorScheme)
+                });
+                colorScheme = newColorScheme;
+                return true;
+            }
+            return false;
+        });
+        if(colorScheme === 'system') {
+            colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const toggleBtn = themeToggler.querySelector('.theme-btn');
+            toggleBtn.classList.add('system')
+        }
+    } else {
+        colorScheme = 'dark';
+        colorSchemeIndex = 0;
+        if(colorSchemesInOrder[1] === 'system') {
+            colorSchemesInOrder.splice(1, 1);
+        }
+    }
+
+    const countOfValidColorSchemes = colorSchemesInOrder.length;
+
+    document.querySelectorAll('.theme').forEach(element => {
+        element.classList.remove('light');
+        element.classList.remove('dark');
+        element.classList.add(colorScheme);
+    });
+
+    themeToggler.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
+    })
+    themeToggler.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const toggleBtn = themeToggler.querySelector('.theme-btn');
+        const oldColorScheme = colorSchemesInOrder[colorSchemeIndex++];
+        colorSchemeIndex %= countOfValidColorSchemes;
+        const newColorScheme = colorSchemesInOrder[colorSchemeIndex];
+        if(newColorScheme === 'system') {
+            toggleBtn.classList.add('system');
+            colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            isManualColorScheme = false;
+        } else {
+            toggleBtn.classList.remove('system');
+            colorScheme = newColorScheme;
+            isManualColorScheme = true;
+        }
+        document.querySelectorAll('.theme').forEach(element => {
+            element.classList.remove('light');
+            element.classList.remove('dark');
+            element.classList.add(colorScheme);
+        });
+        window.localStorage.setItem('colorScheme', newColorScheme);
+    })
 });
