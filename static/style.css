@@ -13,8 +13,12 @@ html, body {
     height: 100%;
 }
 
-body {
+body.dark {
     background: black;
+}
+
+body.light {
+    background: #eef1f0;
 }
 
 div#root {
@@ -23,14 +27,46 @@ div#root {
 
 div.container {
     height: 100%;
-    width: 100%;
-    padding: 100px; 
-    padding-top: 100px;
-    color: white;
+    width: fit-content;
+    padding: 10px;
+    display: flex;
+    position: relative;
+}
+
+.theme-toggler {
+    position: absolute;
+    right: 10px;
+    z-index: 4;
+}
+
+.theme-toggler .fa {
+    position: absolute;
+    right: 0;
+}
+
+div.container.dark .theme-toggler .fa::before {
+    content: '\f185';
+}
+
+div.container.light .theme-toggler .fa::before {
+    content: '\f186';
+}
+
+.theme-toggler .fa.system::before {
+    content: '\f085' !important;
+}
+
+div.container.dark {
+    color: #dfe0cb;
+    border: 1px solid blanchedalmond;
+}
+
+div.container.light {
+    color: #252521;
+    border: 1px solid rgb(61, 58, 53);
 }
 
 div.keyboard {
-    /* margin-left: 50px; */
     height: fit-content;
     padding: 30px;
     width: fit-content;
@@ -38,7 +74,6 @@ div.keyboard {
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    border: 1px solid white;
 }
 
 div.row {
@@ -52,17 +87,28 @@ div.row {
 div#log-input {
     width: 100%;
     max-height: 60px;
-    background-color: whitesmoke;
-    border: 3px solid black;
     border-radius: 10px;
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     overflow-y: scroll;
+    scrollbar-width: thin;
+}
+
+.keyboard.dark div.row div#log-input {
+    background-color: whitesmoke;
+    scrollbar-color: auto;
+    border: 3px solid black;
+}
+
+.keyboard.light div.row div#log-input {
+    background-color: rgb(29, 28, 28);
+    scrollbar-color: rgb(38, 37, 37) rgb(86, 90, 86);
+    border: 3px solid #eef1f0;
 }
 
 div#log-input.focus {
-    border: 3px solid cornflowerblue;
+    border: 3px solid cornflowerblue !important;
 }
 
 div#log-input span.log-key {
@@ -74,18 +120,22 @@ div#log-input span.log-key {
     font-size: 12px;
 }
 
-div#log-input span.log-key.printable {
-    background: BLACK;
+div.keyboard.dark div.row div#log-input span.printable {
+    background: rgb(31, 29, 29);
 }
 
-div#log-input span.log-key.non-printable {
+div.keyboard.light div.row div#log-input span.printable {
+    background: whitesmoke;
+    color: black;
+}
+
+div#log-input span.non-printable {
     background: tomato;
     text-transform: uppercase;
 }
 
-div#log-input span.log-key.non-printable-shortcut {
+div#log-input span.shortcut {
     background: darkorchid;
-    /* text-transform: uppercase; */
 }
 
 div#log-input span.log-key:after {
@@ -100,13 +150,24 @@ div.row span.key {
     margin: 4px;
     border: 1px solid;
     border-image-slice: 1;
-    border-image-source: linear-gradient(to right top, 
-        #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
     border-width: 2px;
     text-align: center;
     border-radius: 4px;
     text-transform: lowercase;
 }
+
+div.keyboard.dark div.row span.key {
+    background-color: #2c2e29;
+    border-image-source: linear-gradient(to right top, 
+        #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
+}
+
+div.keyboard.light div.row span.key {
+    background-color: #c9d1d0;
+    border-image-source: linear-gradient(to right top, 
+        #3ac99c, #41ff8a,#18a0c2, #0071ea, #0c2280);
+}
+
 
 div.row span.key-a-left {
     text-align: left;
@@ -121,7 +182,11 @@ div.row span.key {
 }
 
 div.row span.key-space {
-    width: 360px;
+    width: 332px;
+}
+
+div.row span.key-s-7 {
+    width: 156px;
 }
 
 div.row span.key-s-6 {
@@ -163,12 +228,8 @@ div.row span.key:after {
     content: attr(data-key);
 }
 
-div.row span.key-shift {
+div.row span.key-shift:not(.no-transform) {
     text-transform: capitalize;
-}
-
-div.row span#key-19 {
-    text-transform: lowercase;
 }
 
 div.row span.key-shift:after {
@@ -193,32 +254,21 @@ div.row span.key-icon.icon-enter:before {
     content: '\21B5';
 }
 
-div.row span.key#key-mouse {
-    width: 41px;
-    height: 41px;
-    background-image: linear-gradient(to right top, 
-        #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
-    border: none;
-    border-radius: 50%;
-    align-self: flex-end;
-    position: absolute;
-    left: 605px;
-    margin-bottom: -25px;
-    opacity: 0.92;
-}
 
-div.row span.key#key-mouse:before {
-    position: relative;
-    justify-items: center;
-    font-size: 20px;
-    bottom: 8px;
-    left: 0px;
-}
-
-div.row span.key.key-clicked, div.row span.key.hkey-clicked {
-    background-color: cornsilk;
+div.keyboard.dark div.row span.key.key-clicked,
+div.keyboard.dark div.row .hkey-clicked {
+    background-color: cornsilk !important;
     color: cornflowerblue;
-    transform: scale(0.9);
+    transform: scale(0.95);
+    font-weight: bold;
+}
+
+div.keyboard.light div.row span.key.key-clicked,
+div.keyboard.light div.row .hkey-clicked {
+    background-color: rgb(41, 40, 35) !important;
+    color: rgb(189, 199, 205);
+    transform: scale(0.95);
+    font-weight: bold;
 }
 
 div.row.options {
@@ -241,6 +291,7 @@ div.row.options div.keyboard-option label {
     color: whitesmoke;
     text-transform: capitalize;
 }
+
 div.switch {
     height: 25px;
     width: 50px;
@@ -271,4 +322,93 @@ div.switch.on span.slider {
     left: 26px;
     margin: 0px 2px;
     transition: 0.4s;
+}
+
+
+.mouse {
+    width: 500px;
+    height: 450px;
+    align-self: center;
+    margin: 41px 10px 0px 10px;
+    border: 2px solid;
+    border-image-slice: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: stretch;
+    flex-direction: column;
+
+}
+
+.mouse.dark {
+    border-image-source: linear-gradient(to right top, 
+        #b2becf, #8599a1, #637474, #47504b, #2c2e29);
+    background-color: #10182b;
+}
+
+.mouse.light {
+    border-image-source: linear-gradient(to right top, 
+        #95afd4, #71a7bc, #637474, #47504b, #2c2e29);
+    background-color: #c9d1d0;
+}
+
+.mouse-button {
+    width: 100%;
+    padding: 5px;
+    display: flex;
+} 
+
+.mouse-touchpad {
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    position: relative;
+    outline: none;
+}
+
+.mouse-touchpad[data-pointer="hidden"] {
+    cursor: none;
+}
+
+
+.mouse-pointer {
+    cursor: grabbing;
+    position: absolute;
+    opacity: 0;
+}
+
+.fa-xl {
+    font-size: 24px;
+}
+
+.mouse-pointer.fa-arrows-v {
+    top: 5px !important;
+    left: 5px !important;
+}
+
+.mouse.dark .mouse-touchpad .mouse-pointer {
+    color: white;
+}
+
+.mouse.light .mouse-touchpad .mouse-pointer {
+    color: rgb(43, 34, 34);
+}
+
+.mouse-button .button {
+   width: 100%;
+   height: 32px;
+   margin: 0 2px;
+   border: 1px solid;
+   border-image-slice: 1;
+}
+
+.mouse.dark .mouse-button .button {
+    background-color: #2c2e29;
+    border-image-source: linear-gradient(to right top, 
+    #f4ee6a, #ffa541,#ff4667, #ea00ab, #1238eb);
+}
+
+.mouse.light .mouse-button .button {
+    background-color: #c9d1d0;
+    border-image-source: linear-gradient(to right top, 
+        #3ac99c, #41ff8a,#18a0c2, #0071ea, #0c2280);
 }
