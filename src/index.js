@@ -622,7 +622,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     
     const themeToggler = document.getElementById('theme-toggler');
-    const colorSchemesInOrder = ['dark', 'system', 'light'];
+    const toggleBtn = themeToggler.querySelector('.theme-btn');
+    const colorSchemesInOrder = ['dark', 'system', 'light', 'system'];
+    const colorSchemeIconClasses = ['fa-cogs', 'fa-sun-o', 'fa-cogs', 'fa-moon-o'];
     let colorScheme = window.localStorage.getItem('colorScheme')?.toLowerCase() ?? 'system';
     let colorSchemeIndex = colorSchemesInOrder.findIndex(cs => cs === colorScheme);
     if(colorSchemeIndex === -1) {
@@ -633,6 +635,9 @@ document.addEventListener('DOMContentLoaded', () => {
             colorScheme = 'dark';
             colorSchemeIndex = 0;
             colorSchemesInOrder.splice(1, 1);
+            colorSchemesInOrder.splice(2, 1);
+            colorSchemeIconClasses.splice(0, 1);
+            colorSchemeIconClasses.splice(1, 1);
         }
         window.localStorage.removeItem('colorScheme');
     }
@@ -651,17 +656,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         });
         if(colorScheme === 'system') {
-            colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const toggleBtn = themeToggler.querySelector('.theme-btn');
-            toggleBtn.classList.add('system')
+            colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark' : 'light';
         }
     } else {
-        colorScheme = 'dark';
-        colorSchemeIndex = 0;
+        colorScheme = colorScheme === 'system' ? 'dark' : colorScheme;
+        colorSchemeIndex = colorScheme === 'dark' ? 0 : 1;
+        isManualColorScheme = true;
         if(colorSchemesInOrder[1] === 'system') {
             colorSchemesInOrder.splice(1, 1);
+            colorSchemeIconClasses.splice(0, 1);
+        }
+        if(colorSchemesInOrder[2] === 'system') {
+            colorSchemesInOrder.splice(2, 2);
+            colorSchemeIconClasses.splice(1, 1);
         }
     }
+    toggleBtn.classList.add(colorSchemeIconClasses[colorSchemeIndex]);
 
     const countOfValidColorSchemes = colorSchemesInOrder.length;
 
@@ -671,31 +682,32 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.add(colorScheme);
     });
 
-    themeToggler.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        e.stopPropagation();
-    })
     themeToggler.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
-        const toggleBtn = themeToggler.querySelector('.theme-btn');
-        const oldColorScheme = colorSchemesInOrder[colorSchemeIndex++];
+        const oldColorSchemeIcon = colorSchemeIconClasses[colorSchemeIndex++];
         colorSchemeIndex %= countOfValidColorSchemes;
         const newColorScheme = colorSchemesInOrder[colorSchemeIndex];
+        const newColorSchemeIcon = colorSchemeIconClasses[colorSchemeIndex];
         if(newColorScheme === 'system') {
-            toggleBtn.classList.add('system');
-            colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark' : 'light';
             isManualColorScheme = false;
         } else {
-            toggleBtn.classList.remove('system');
             colorScheme = newColorScheme;
             isManualColorScheme = true;
         }
+        toggleBtn.classList.replace(oldColorSchemeIcon, newColorSchemeIcon);
         document.querySelectorAll('.theme').forEach(element => {
             element.classList.remove('light');
             element.classList.remove('dark');
             element.classList.add(colorScheme);
         });
         window.localStorage.setItem('colorScheme', newColorScheme);
-    })
+    });
+
+    themeToggler.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 });
