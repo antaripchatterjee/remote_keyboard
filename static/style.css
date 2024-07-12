@@ -44,18 +44,6 @@ div.container {
     right: 0;
 }
 
-div.container.dark .theme-toggler .fa::before {
-    content: '\f185';
-}
-
-div.container.light .theme-toggler .fa::before {
-    content: '\f186';
-}
-
-.theme-toggler .fa.system::before {
-    content: '\f085' !important;
-}
-
 div.container.dark {
     color: #dfe0cb;
     border: 1px solid blanchedalmond;
