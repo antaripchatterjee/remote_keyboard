@@ -58,11 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     target.classList.add("key-clicked");
                     setTimeout(() => target.classList.remove("key-clicked"), 20);
                 }
-                [17, 18, 91].forEach((keyCode) => {
-                    document.querySelector(`span.key#key-${keyCode}`)
-                        .classList.remove("hkey-clicked");
-                    helperKeys.delete(keyCode);
-                });
+                if(primaryEvent === 'click') {
+                    [17, 18, 91].forEach((keyCode) => {
+                        document.querySelector(`span.key#key-${keyCode}`)
+                            .classList.remove("hkey-clicked");
+                        helperKeys.delete(keyCode);
+                    });
+                }
             }
     
             if (enableEffect && doLog) {
@@ -165,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!isKeydownAllowed) return false;
         const charCode = kde.keyCode;
         if(charCode === 20) return false; // caps lock
-        if (![16, 17, 18, 91].includes(charCode) || !helperKeys.has(charCode)) {
+        if(![16, 17, 18, 91].includes(charCode) || !helperKeys.has(charCode)) {
             if ([16, 17, 18, 91].includes(charCode)) {
                 helperKeys.add(charCode);
             }
